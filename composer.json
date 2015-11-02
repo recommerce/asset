@@ -1,5 +1,5 @@
 {
-    "name":"socle/stdlib",
+    "name":"socle/asset",
     "repositories": [
         {
             "type":"composer",
