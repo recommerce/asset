@@ -7,12 +7,15 @@ if (!defined('DS')) {
 }
 
 use Recommerce\Asset\Exception\AssetGetException;
+use Recommerce\Asset\Exception\AssetMoveException;
+use Recommerce\Asset\Exception\AssetPutException;
 
 /**
  * AssetClient est une interface permettant le stockage de fichiers à des fins d'accès via
  * le protocole HTTP.
  * Il fournit les fonctions classiques de gestion de fichier.
  *
+ * @group functional_testing
  * @package AssetClient
  */
 abstract class AssetClient implements AssetClientInterface
@@ -31,31 +34,6 @@ abstract class AssetClient implements AssetClientInterface
         $this->tmpDir = (isset($options['tmpDir']))
             ? $options['tmpDir']
             : '/tmp';
-    }
-
-    /**
-     * Copie un fichier http en local et retourne le nom du fichier créé
-     *
-     * @throws Exception    Impossible de copier le fichier distant
-     * @param string $localfile
-     * @param string $assetFile
-     * @return string
-     */
-    protected function getDistantFile($localfile, $assetFile)
-    {
-        $tmpName = str_replace(['/', '\\'], '', $assetFile);
-        $tmpFile = $this->tmpDir . DS . $tmpName;
-
-        if (!copy($localfile, $tmpFile)) {
-            throw new \Exception(
-                sprintf(
-                    "Impossible de copier le fichier distant '%s' vers '%s'.",
-                    $localfile,
-                    $tmpFile
-                )
-            );
-        }
-        return $tmpFile;
     }
 
     /**
@@ -88,6 +66,36 @@ abstract class AssetClient implements AssetClientInterface
     }
 
     /**
+     * @param string $assetFile
+     * @param string $assetDir
+     * @return bool
+     * @throws AssetMoveException
+     */
+    public function move($assetFile, $assetDir)
+    {
+        if (!$this->exists($assetFile)) {
+            throw new AssetMoveException(sprintf(
+                "Asset file (%s) does not exists",
+                $assetFile
+            ));
+        }
+        return $this->internalMove($assetFile, $assetDir);
+    }
+
+    /**
+     * @param string $assetFile
+     * @param string $assetDir
+     * @return bool
+     */
+    protected function internalMove($assetFile, $assetDir)
+    {
+        $newAssetFile = $assetDir . DS . basename($assetFile);
+        $localFile = $this->get($assetFile);
+
+        return $this->put($localFile, $newAssetFile);
+    }
+
+    /**
      * Copie un fichier dans l'asset
      *
      * @param string $localFile
@@ -111,13 +119,29 @@ abstract class AssetClient implements AssetClientInterface
     }
 
     /**
-     * Copie un fichier dans l'asset
+     * Copie un fichier http en local et retourne le nom du fichier créé
      *
-     * @param string $localFile
+     * @param string $localfile
      * @param string $assetFile
-     * @return boolean true
+     * @return string
+     * @throws AssetPutException Impossible de copier le fichier distant
      */
-    abstract protected function internalPut($localFile, $assetFile);
+    protected function getDistantFile($localfile, $assetFile)
+    {
+        $tmpName = str_replace(['/', '\\'], '', $assetFile);
+        $tmpFile = $this->tmpDir . DS . $tmpName;
+
+        if (!copy($localfile, $tmpFile)) {
+            throw new AssetPutException(
+                sprintf(
+                    "Impossible de copier le fichier distant '%s' vers '%s'.",
+                    $localfile,
+                    $tmpFile
+                )
+            );
+        }
+        return $tmpFile;
+    }
 
     /**
      * Récupère un fichier de l'asset et le copie en local
@@ -144,23 +168,6 @@ abstract class AssetClient implements AssetClientInterface
 
         return $this->internalGet($assetFile, $localFile);
     }
-
-    /**
-     * Récupère un fichier de l'asset et le copie en local
-     *
-     * @param string $assetFile
-     * @param string $localFile
-     * @return string Nom du nouveau fichier en local
-     */
-    abstract protected function internalGet($assetFile, $localFile);
-
-    /**
-     * Récupère la liste de fichiers contenu dans un répertoire
-     *
-     * @param string $dir
-     * @return mixed False si le répertoire n'existe pas, une liste sinon
-     */
-    abstract public function getFiles($dir);
 
     /**
      * @param string $dir
@@ -212,14 +219,6 @@ abstract class AssetClient implements AssetClientInterface
     }
 
     /**
-     * Supprime un fichier sur l'asset
-     *
-     * @param string $assetFile
-     * @return boolean
-     */
-    abstract protected function internalRemove($assetFile);
-
-    /**
      * Vérifie l'existence d'un fichier sur l'asset
      *
      * @param string $assetFile
@@ -236,4 +235,38 @@ abstract class AssetClient implements AssetClientInterface
         }
         return false;
     }
+
+    /**
+     * Copie un fichier dans l'asset
+     *
+     * @param string $localFile
+     * @param string $assetFile
+     * @return boolean true
+     */
+    abstract protected function internalPut($localFile, $assetFile);
+
+    /**
+     * Récupère un fichier de l'asset et le copie en local
+     *
+     * @param string $assetFile
+     * @param string $localFile
+     * @return string Nom du nouveau fichier en local
+     */
+    abstract protected function internalGet($assetFile, $localFile);
+
+    /**
+     * Récupère la liste de fichiers contenu dans un répertoire
+     *
+     * @param string $dir
+     * @return mixed False si le répertoire n'existe pas, une liste sinon
+     */
+    abstract public function getFiles($dir);
+
+    /**
+     * Supprime un fichier sur l'asset
+     *
+     * @param string $assetFile
+     * @return boolean
+     */
+    abstract protected function internalRemove($assetFile);
 }
