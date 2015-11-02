@@ -11,6 +11,15 @@ namespace Recommerce\Asset;
  */
 interface AssetClientInterface
 {
+
+    /**
+     * @param string $assetFile
+     * @param string $assetDir
+     * @return bool
+     * @throws AssetMoveException
+     */
+    public function move($assetFile, $assetDir);
+
     /**
      * Copie un fichier dans l'asset
      *
