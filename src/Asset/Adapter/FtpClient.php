@@ -64,6 +64,18 @@ class FtpClient extends AssetClient implements AssetClientInterface
     }
 
     /**
+     * @param string $assetFile
+     * @param string $assetDir
+     * @return bool
+     */
+    protected function internalMove($assetFile, $assetDir)
+    {
+        $newAssetFile = $assetDir . DS . basename($assetFile);
+
+        return ftp_rename($this->connection, $assetFile, $newAssetFile);
+    }
+
+    /**
      * Copie un fichier dans l'asset
      *
      * @param string $localFile

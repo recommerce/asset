@@ -60,6 +60,25 @@ class FilesystemTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->instance->exists('gnagnagna'));
     }
 
+    /**
+     * @expectedException \Recommerce\Asset\Exception\AssetMoveException
+     */
+    public function testMoveNonExistingFile()
+    {
+        $this
+            ->instance
+            ->move('non_existing_file.txt', $this->relativeAssetDir);
+    }
+
+    public function testMove()
+    {
+        $assetFile = $this->assetFiles[0];
+
+        $this->assertTrue(
+            $this->instance->move($assetFile, 'anotherdir')
+        );
+    }
+
     public function testGetFiles()
     {
         $this->assertSame(
