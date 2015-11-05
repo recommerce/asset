@@ -83,6 +83,9 @@ abstract class AssetClient implements AssetClientInterface
     }
 
     /**
+     * Beware, download file for uploading it with a new name. Exists for convenience,
+     * override it for performance.
+     *
      * @param string $assetFile
      * @param string $assetDir
      * @return bool
@@ -91,8 +94,10 @@ abstract class AssetClient implements AssetClientInterface
     {
         $newAssetFile = $assetDir . DS . basename($assetFile);
         $localFile = $this->get($assetFile);
+        $this->put($localFile, $newAssetFile);
+        $this->remove($assetFile);
 
-        return $this->put($localFile, $newAssetFile);
+        return $newAssetFile;
     }
 
     /**
