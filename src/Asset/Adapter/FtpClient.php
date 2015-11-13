@@ -4,6 +4,7 @@ namespace Recommerce\Asset\Adapter;
 
 use Recommerce\Asset\AssetClient;
 use Recommerce\Asset\AssetClientInterface;
+use Recommerce\Asset\Exception\AssetMoveException;
 use Recommerce\Asset\Exception\AssetPutException;
 
 class FtpClient extends AssetClient implements AssetClientInterface
@@ -70,6 +71,7 @@ class FtpClient extends AssetClient implements AssetClientInterface
      * @param string $assetFile
      * @param string $assetDir
      * @return bool
+     * @throws AssetMoveException
      */
     protected function internalMove($assetFile, $assetDir)
     {
@@ -77,7 +79,15 @@ class FtpClient extends AssetClient implements AssetClientInterface
 
         $newAssetFile = $assetDir . DS . basename($assetFile);
 
-        return ftp_rename($this->connection, $assetFile, $newAssetFile);
+        if (!ftp_rename($this->connection, $assetFile, $newAssetFile)) {
+            throw new AssetMoveException(sprintf(
+                "Unable to move '%s' to '%s'.",
+                $assetFile,
+                $newAssetFile
+            ));
+        }
+
+        return $newAssetFile;
     }
 
     /**
