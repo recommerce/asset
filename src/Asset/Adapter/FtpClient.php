@@ -51,6 +51,7 @@ class FtpClient extends AssetClient implements AssetClientInterface
         if (!$connection || !ftp_login($connection, $this->login, $this->password)) {
             return null;
         }
+        ftp_pasv($connection, true);
 
         return $connection;
     }
@@ -70,6 +71,8 @@ class FtpClient extends AssetClient implements AssetClientInterface
      */
     protected function internalMove($assetFile, $assetDir)
     {
+        $this->reconnectIfNeeded();
+
         $newAssetFile = $assetDir . DS . basename($assetFile);
 
         return ftp_rename($this->connection, $assetFile, $newAssetFile);
@@ -85,7 +88,7 @@ class FtpClient extends AssetClient implements AssetClientInterface
      */
     protected function internalPut($localFile, $assetFile)
     {
-        ftp_pasv($this->connection, true);
+        $this->reconnectIfNeeded();
 
         if (!ftp_put($this->connection, $assetFile, $localFile, FTP_BINARY)) {
             throw new AssetPutException(
@@ -106,7 +109,7 @@ class FtpClient extends AssetClient implements AssetClientInterface
      */
     protected function internalGet($assetFile, $localFile)
     {
-        ftp_pasv($this->connection, true);
+        $this->reconnectIfNeeded();
 
         if (!ftp_get($this->connection, $localFile, $assetFile, FTP_BINARY)) {
             throw new AssetPutException(
@@ -128,7 +131,8 @@ class FtpClient extends AssetClient implements AssetClientInterface
      */
     public function getFiles($dir)
     {
-        ftp_pasv($this->connection, true);
+        $this->reconnectIfNeeded();
+
         return ftp_nlist($this->connection, $dir);
     }
 
@@ -140,7 +144,8 @@ class FtpClient extends AssetClient implements AssetClientInterface
      */
     protected function internalRemove($assetFile)
     {
-        ftp_pasv($this->connection, true);
+        $this->reconnectIfNeeded();
+
         return ftp_delete($this->connection, $assetFile);
     }
 }

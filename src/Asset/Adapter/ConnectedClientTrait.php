@@ -99,4 +99,22 @@ trait ConnectedClientTrait
 
         return $connection;
     }
+
+    /**
+     * @throws ConnectionException
+     */
+    private function reconnectIfNeeded()
+    {
+        $this->connection = (!$this->connection || !$this->isConnected())
+            ? $this->connect()
+            : $this->connection;
+    }
+
+    /**
+     * @return bool
+     */
+    private function isConnected()
+    {
+        return is_array(ftp_nlist($this->connection, "."));
+    }
 }
