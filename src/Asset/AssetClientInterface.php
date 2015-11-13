@@ -15,7 +15,7 @@ interface AssetClientInterface
     /**
      * @param string $assetFile
      * @param string $assetDir
-     * @return bool
+     * @return string $newAssetFile
      * @throws AssetMoveException
      */
     public function move($assetFile, $assetDir);

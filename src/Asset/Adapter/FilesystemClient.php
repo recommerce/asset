@@ -30,11 +30,11 @@ class FilesystemClient extends AssetClient implements AssetClientInterface
     }
 
     /**
-     * Récupère la liste de fichiers contenu dans un répertoire
+     * {@inheritdoc}
      *
      * @throws \Exception Le paramètre ne correspond pas à un répertoire valide
      * @param string $dir
-     * @return mixed False si le répertoire n'existe pas, une liste sinon
+     * @return array file list
      */
     public function getFiles($dir)
     {
@@ -43,7 +43,7 @@ class FilesystemClient extends AssetClient implements AssetClientInterface
 
         if (!is_dir($fulldir)) {
             throw new \Exception(
-                sprintf("'%s' n'est pas un répertoire.", $fulldir)
+                sprintf("'%s' is not an existing directory.", $fulldir)
             );
         }
 
@@ -57,35 +57,27 @@ class FilesystemClient extends AssetClient implements AssetClientInterface
     }
 
     /**
-     * Récupère un fichier de l'asset et le copie en local
+     * {@inheritdoc}
      *
      * @throws \Exception
      * @param string $assetFile
      * @param string $localFile
-     * @return string Nom du nouveau fichier en local
+     * @return bool
      */
     protected function internalGet($assetFile, $localFile)
     {
-        $assetFile = $this->repository . DS . $assetFile;
-
-        if (!copy($assetFile, $localFile)) {
-            throw new \Exception(
-                sprintf(
-                    "Impossible de copier le fichier %s vers %s",
-                    $assetFile,
-                    $localFile
-                )
-            );
-        }
-        return $localFile;
+        return copy(
+            $this->repository . DS . $assetFile,
+            $localFile
+        );
     }
 
     /**
-     * Copie un fichier dans l'asset
+     * {@inheritdoc}
      *
      * @param string $localFile
      * @param string $assetFile
-     * @return boolean true
+     * @return boolean
      * @throws AssetPutException
      */
     protected function internalPut($localFile, $assetFile)
@@ -95,24 +87,15 @@ class FilesystemClient extends AssetClient implements AssetClientInterface
 
         if (!is_dir($dir) && !mkdir($dir, 0755, true)) {
             throw new AssetPutException(
-                sprintf("Impossible de créer le répertoire '%s'", $dir)
+                sprintf("Unable to create asset directory '%s'", $dir)
             );
         }
 
-        if (!copy($localFile, $assetFile)) {
-            throw new AssetPutException(
-                sprintf(
-                    "Erreur lors de la copie du fichier '%s' vers le dépot '%s'",
-                    $localFile,
-                    $assetFile
-                )
-            );
-        }
-        return true;
+        return copy($localFile, $assetFile);
     }
 
     /**
-     * Supprime un fichier sur l'asset
+     * {@inheritdoc}
      *
      * @param string $assetAssetFile
      * @return boolean

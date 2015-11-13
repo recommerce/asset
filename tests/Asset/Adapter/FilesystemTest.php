@@ -74,7 +74,8 @@ class FilesystemTest extends \PHPUnit_Framework_TestCase
     {
         $assetFile = $this->assetFiles[0];
 
-        $this->assertTrue(
+        $this->assertSame(
+            'anotherdir' . DS . $this->file1,
             $this->instance->move($assetFile, 'anotherdir')
         );
     }
