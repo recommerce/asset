@@ -65,6 +65,8 @@ class FtpClient extends AssetClient implements AssetClientInterface
     }
 
     /**
+     * {@inheritdoc}
+     *
      * @param string $assetFile
      * @param string $assetDir
      * @return bool
@@ -79,28 +81,21 @@ class FtpClient extends AssetClient implements AssetClientInterface
     }
 
     /**
-     * Copie un fichier dans l'asset
+     * {@inheritdoc}
      *
      * @param string $localFile
      * @param string $assetFile
      * @return boolean true
-     * @throws AssetPutException
      */
     protected function internalPut($localFile, $assetFile)
     {
         $this->reconnectIfNeeded();
 
-        if (!ftp_put($this->connection, $assetFile, $localFile, FTP_BINARY)) {
-            throw new AssetPutException(
-                sprintf("Unable to put local file %s on asset %s", $localFile, $assetFile)
-            );
-        }
-
-        return true;
+        return ftp_put($this->connection, $assetFile, $localFile, FTP_BINARY);
     }
 
     /**
-     * Récupère un fichier de l'asset et le copie en local
+     * {@inheritdoc}
      *
      * @param string $assetFile
      * @param string $localFile
@@ -111,20 +106,11 @@ class FtpClient extends AssetClient implements AssetClientInterface
     {
         $this->reconnectIfNeeded();
 
-        if (!ftp_get($this->connection, $localFile, $assetFile, FTP_BINARY)) {
-            throw new AssetPutException(
-                sprintf(
-                    "Unable to get asset file %s on local filesystem %s",
-                    $assetFile,
-                    $localFile
-                )
-            );
-        }
-        return $localFile;
+        return ftp_get($this->connection, $localFile, $assetFile, FTP_BINARY);
     }
 
     /**
-     * Récupère la liste de fichiers contenu dans un répertoire
+     * {@inheritdoc}
      *
      * @param string $dir
      * @return mixed False si le répertoire n'existe pas, une liste sinon
@@ -137,7 +123,7 @@ class FtpClient extends AssetClient implements AssetClientInterface
     }
 
     /**
-     * Supprime un fichier sur l'asset
+     * {@inheritdoc}
      *
      * @param string $assetFile
      * @return boolean
