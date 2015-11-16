@@ -6,6 +6,7 @@ require_once __DIR__ . '/bootstrap.php';
 
 use Recommerce\Asset\Adapter\SftpClient;
 use Recommerce\Asset\Adapter\SftpSecLib;
+use Recommerce\Asset\AssetClientInterface;
 use Recommerce\Asset\AssetFactory;
 use Recommerce\Asset\Adapter\FtpClient;
 use Recommerce\Asset\Adapter\S3Client;
@@ -70,14 +71,14 @@ $serviceManager->setService('Config', $config);
 $assetClient = (new AssetFactory())->createService($serviceManager);
 
 // AWS S3 tests
-//var_dump($assetClient->getFiles('argus'));
+//var_dump($assetClient->internalGetFiles('argus'));
 //var_dump($assetClient->get('argus/buyers/afone mobile_logo.png', '/tmp/afone mobile_logo.png'));
 //var_dump($assetClient->put('/tmp/afone mobile_logo.png', 'argus/afone mobile_logo.png'));
 //var_dump($assetClient->exists('argus/afone mobile_logo.png'));
 //var_dump($assetClient->remove('argus/afone mobile_logo.png'));
 
 // FTP tests
-$assetClient->move('test.txt', 'RS');
+$assetClient->move('test.txt', 'RS', AssetClientInterface::OVERWRITE);
 //var_dump($assetClient->listFiles('RS', 'expected'));
 //var_dump($assetClient->get('in/IN_48_20150528_162554_8460.csv', '/tmp/test.csv'));
 //var_dump($assetClient->put('/tmp/test.csv', 'test.csv'));
@@ -85,7 +86,7 @@ $assetClient->move('test.txt', 'RS');
 //var_dump($assetClient->remove('test.csv'));
 
 // SFTP tests
-//var_dump($assetClient->getFiles(''));
+//var_dump($assetClient->internalGetFiles(''));
 //var_dump($assetClient->get('in/IN_48_20150528_162554_8460.csv', '/tmp/test.csv'));
 //var_dump($assetClient->put('/tmp/test.csv', 'test.csv'));
 //var_dump($assetClient->exists('test.csv'));

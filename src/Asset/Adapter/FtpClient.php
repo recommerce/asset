@@ -120,14 +120,14 @@ class FtpClient extends AssetClient implements AssetClientInterface
     /**
      * {@inheritdoc}
      *
-     * @param string $dir
+     * @param string $assetAssetDir
      * @return mixed False si le répertoire n'existe pas, une liste sinon
      */
-    public function getFiles($dir)
+    protected function internalGetFiles($assetAssetDir)
     {
         $this->reconnectIfNeeded();
 
-        return ftp_nlist($this->connection, $dir);
+        return ftp_nlist($this->connection, $assetAssetDir);
     }
 
     /**

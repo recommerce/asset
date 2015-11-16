@@ -22,9 +22,18 @@ abstract class AssetClient implements AssetClientInterface
 {
 
     /**
-     * @var string répertoire de stockage temporaire pour gérer le transite des fichiers
+     * Directory where files are temporarily stocked to manage files transfer
+     *
+     * @var string
      */
     protected $tmpDir;
+
+    /**
+     * Asset repository url
+     *
+     * @var string
+     */
+    protected $rootUrl;
 
     /**
      * @param array $options
@@ -34,20 +43,22 @@ abstract class AssetClient implements AssetClientInterface
         $this->tmpDir = (isset($options['tmpDir']))
             ? $options['tmpDir']
             : '/tmp';
+
+        $this->rootUrl = (isset($options['rootUrl']))
+            ? $options['rootUrl']
+            : '';
     }
 
     /**
-     * Récupère l'url du dépôt des assets
-     *
      * @return string
      */
     public function getRootUrl()
     {
-        return Configure::read('assets.url.root');
+        return $this->rootUrl;
     }
 
     /**
-     * Récupère l'url d'accès au fichier
+     * Get file access URI
      *
      * @param string $assetFile
      * @return string $url
@@ -76,15 +87,20 @@ abstract class AssetClient implements AssetClientInterface
     {
         if (!$this->exists($oldAssetFile)) {
             throw new AssetMoveException(sprintf(
-                "Asset file (%s) does not exists",
+                "Asset file '%s' does not exist",
                 $oldAssetFile
             ));
         }
 
         $newAssetFile = $destAssetDir . DS . basename($oldAssetFile);
-        $isOverwriteMode = ($behaviorIfDestExists === self::OVERWRITE);
 
-        if ($isOverwriteMode && $this->exists($newAssetFile)) {
+        if ($this->exists($newAssetFile)) {
+            if (($behaviorIfDestExists === self::THROW_EXCEPTION)) {
+                throw new AssetMoveException(sprintf(
+                    "Destination file '%s' already exists",
+                    $newAssetFile
+                ));
+            }
             $this->remove($newAssetFile);
         }
 
@@ -207,7 +223,7 @@ abstract class AssetClient implements AssetClientInterface
     public function listFiles($dir, $pattern = null)
     {
         $matchingFiles = array();
-        $files = $this->getFiles($dir);
+        $files = $this->internalGetFiles($dir);
 
         foreach ($files as $file) {
             if ($pattern && false === stripos($file, $pattern)) {
@@ -269,6 +285,21 @@ abstract class AssetClient implements AssetClientInterface
     }
 
     /**
+     * Client specific operation to list asset directory's files
+     *
+     * @param string $assetAssetDir
+     * @return array $fileList
+     */
+    public function getFiles($assetAssetDir)
+    {
+        if ($assetAssetDir === '.') {
+            $assetAssetDir = '';
+        }
+        return $this->internalGetFiles($assetAssetDir);
+    }
+
+
+    /**
      * Client specific opration to put file on asset
      *
      * @param string $localFile
@@ -289,10 +320,10 @@ abstract class AssetClient implements AssetClientInterface
     /**
      * Client specific operation to list asset directory's files
      *
-     * @param string $dir
+     * @param string $assetDir
      * @return array $fileList
      */
-    abstract public function getFiles($dir);
+    abstract protected function internalGetFiles($assetDir);
 
     /**
      * Client specific operation to remove asset file

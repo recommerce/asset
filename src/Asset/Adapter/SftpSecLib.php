@@ -66,12 +66,12 @@ class SftpSecLib extends AssetClient implements AssetClientInterface
     /**
      * {@inheritdoc}
      *
-     * @param string $dir
+     * @param string $assetAssetDir
      * @return mixed False si le répertoire n'existe pas, une liste sinon
      */
-    public function getFiles($dir)
+    protected function internalGetFiles($assetAssetDir)
     {
-        return $this->connection->nList($dir);
+        return $this->connection->nList($assetAssetDir);
     }
 
     /**

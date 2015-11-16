@@ -45,10 +45,10 @@ interface AssetClientInterface
     /**
      * Récupère la liste de fichiers contenu dans un répertoire
      *
-     * @param string $dir
+     * @param string $assetAssetDir
      * @return mixed False si le répertoire n'existe pas, une liste sinon
      */
-    public function getFiles($dir);
+    public function getFiles($assetAssetDir);
 
     /**
      * @param string $dir

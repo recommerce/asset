@@ -102,13 +102,13 @@ class SftpClient extends AssetClient implements AssetClientInterface
     /**
      * {@inheritdoc}
      *
-     * @param string $dir
+     * @param string $assetAssetDir
      * @return mixed False si le répertoire n'existe pas, une liste sinon
      */
-    public function getFiles($dir)
+    protected function internalGetFiles($assetAssetDir)
     {
         $files = [];
-        $handle = opendir("ssh2.sftp://{$this->stream}/$dir");
+        $handle = opendir("ssh2.sftp://{$this->stream}/$assetAssetDir");
 
         while (false !== ($file = readdir($handle))) {
             if (in_array($file, ['.', '..'])) {
