@@ -66,36 +66,44 @@ abstract class AssetClient implements AssetClientInterface
     }
 
     /**
-     * @param string $assetFile
-     * @param string $assetDir
+     * @param string $oldAssetFile
+     * @param string $destAssetDir
+     * @param int $behaviorIfDestExists
      * @return string
      * @throws AssetMoveException
      */
-    public function move($assetFile, $assetDir)
+    public function move($oldAssetFile, $destAssetDir, $behaviorIfDestExists = self::THROW_EXCEPTION)
     {
-        if (!$this->exists($assetFile)) {
+        if (!$this->exists($oldAssetFile)) {
             throw new AssetMoveException(sprintf(
                 "Asset file (%s) does not exists",
-                $assetFile
+                $oldAssetFile
             ));
         }
-        return $this->internalMove($assetFile, $assetDir);
+
+        $newAssetFile = $destAssetDir . DS . basename($oldAssetFile);
+        $isOverwriteMode = ($behaviorIfDestExists === self::OVERWRITE);
+
+        if ($isOverwriteMode && $this->exists($newAssetFile)) {
+            $this->remove($newAssetFile);
+        }
+
+        return $this->internalMove($oldAssetFile, $newAssetFile);
     }
 
     /**
      * Beware, download file for uploading it with a new name. Exists for convenience,
      * override it for performance.
      *
-     * @param string $assetFile
-     * @param string $assetDir
+     * @param string $oldAssetFile
+     * @param string $newAssetFile
      * @return string
      */
-    protected function internalMove($assetFile, $assetDir)
+    protected function internalMove($oldAssetFile, $newAssetFile)
     {
-        $newAssetFile = $assetDir . DS . basename($assetFile);
-        $localFile = $this->get($assetFile);
+        $localFile = $this->get($oldAssetFile);
         $this->put($localFile, $newAssetFile);
-        $this->remove($assetFile);
+        $this->remove($oldAssetFile);
 
         return $newAssetFile;
     }

@@ -68,21 +68,19 @@ class FtpClient extends AssetClient implements AssetClientInterface
     /**
      * {@inheritdoc}
      *
-     * @param string $assetFile
-     * @param string $assetDir
+     * @param string $oldAssetFile
+     * @param string $newAssetFile
      * @return bool
      * @throws AssetMoveException
      */
-    protected function internalMove($assetFile, $assetDir)
+    protected function internalMove($oldAssetFile, $newAssetFile)
     {
         $this->reconnectIfNeeded();
 
-        $newAssetFile = $assetDir . DS . basename($assetFile);
-
-        if (!ftp_rename($this->connection, $assetFile, $newAssetFile)) {
+        if (!ftp_rename($this->connection, $oldAssetFile, $newAssetFile)) {
             throw new AssetMoveException(sprintf(
                 "Unable to move '%s' to '%s'.",
-                $assetFile,
+                $oldAssetFile,
                 $newAssetFile
             ));
         }
