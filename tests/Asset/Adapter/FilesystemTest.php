@@ -34,7 +34,7 @@ class FilesystemTest extends \PHPUnit_Framework_TestCase
 
         $assetFullDir = $this->assetRepository . DIRECTORY_SEPARATOR . $this->relativeAssetDir;
 
-        is_dir($assetFullDir) && $this->rmTree($assetFullDir);
+        is_dir($this->assetRepository) && $this->rmTree($this->assetRepository);
 
         if (!mkdir($assetFullDir, 0755, true)) {
             throw new \Exception("Unable to create test directory");
@@ -136,7 +136,7 @@ class FilesystemTest extends \PHPUnit_Framework_TestCase
 
         foreach ($files as $file) {
             (is_dir("$dir/$file") && !is_link($dir))
-                ? delTree("$dir/$file")
+                ? $this->rmTree("$dir/$file")
                 : unlink("$dir/$file");
         }
         return rmdir($dir);

@@ -46,15 +46,15 @@ class S3Client extends AssetClient implements AssetClientInterface
     /**
      * {@inheritdoc}
      *
-     * @param string $dir
+     * @param string $assetAssetDir
      * @return mixed        false si le répertoire n'existe pas, une liste sinon
      */
-    public function getFiles($dir)
+    protected function internalGetFiles($assetAssetDir)
     {
         $resultObject = $this->s3Client->listObjects(
             [
                 'Bucket' => $this->bucket,
-                'Prefix' => $dir
+                'Prefix' => $assetAssetDir
             ]
         );
 

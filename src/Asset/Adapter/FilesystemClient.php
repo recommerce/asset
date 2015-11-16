@@ -33,13 +33,13 @@ class FilesystemClient extends AssetClient implements AssetClientInterface
      * {@inheritdoc}
      *
      * @throws \Exception Le paramètre ne correspond pas à un répertoire valide
-     * @param string $dir
+     * @param string $assetAssetDir
      * @return array file list
      */
-    public function getFiles($dir)
+    protected function internalGetFiles($assetAssetDir)
     {
         $files = [];
-        $fulldir = $this->repository . DS . $dir;
+        $fulldir = $this->repository . DS . $assetAssetDir;
 
         if (!is_dir($fulldir)) {
             throw new \Exception(
@@ -51,7 +51,7 @@ class FilesystemClient extends AssetClient implements AssetClientInterface
             if (in_array($file, ['.', '..'])) {
                 continue;
             }
-            $files[] = $dir . DS . $file;
+            $files[] = $assetAssetDir . DS . $file;
         }
         return $files;
     }
