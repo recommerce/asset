@@ -11,14 +11,17 @@ namespace Recommerce\Asset;
  */
 interface AssetClientInterface
 {
+    const THROW_EXCEPTION = 0x01;
+    const OVERWRITE = 0x02;
 
     /**
-     * @param string $assetFile
-     * @param string $assetDir
-     * @return string $newAssetFile
+     * @param string $oldAssetFile
+     * @param string $destAssetDir
+     * @param int $behaviorIfDestExists
+     * @return string
      * @throws AssetMoveException
      */
-    public function move($assetFile, $assetDir);
+    public function move($oldAssetFile, $destAssetDir, $behaviorIfDestExists = self::THROW_EXCEPTION);
 
     /**
      * Copie un fichier dans l'asset
