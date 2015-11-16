@@ -77,7 +77,8 @@ $assetClient = (new AssetFactory())->createService($serviceManager);
 //var_dump($assetClient->remove('argus/afone mobile_logo.png'));
 
 // FTP tests
-var_dump($assetClient->listFiles('RS', 'expected'));
+$assetClient->move('test.txt', 'RS');
+//var_dump($assetClient->listFiles('RS', 'expected'));
 //var_dump($assetClient->get('in/IN_48_20150528_162554_8460.csv', '/tmp/test.csv'));
 //var_dump($assetClient->put('/tmp/test.csv', 'test.csv'));
 //var_dump($assetClient->exists('test.csv'));
