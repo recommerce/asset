@@ -22,9 +22,18 @@ abstract class AssetClient implements AssetClientInterface
 {
 
     /**
-     * @var string répertoire de stockage temporaire pour gérer le transite des fichiers
+     * Directory where files are temporarily stocked to manage files transfer
+     *
+     * @var string
      */
     protected $tmpDir;
+
+    /**
+     * Asset repository url
+     *
+     * @var string
+     */
+    protected $rootUrl;
 
     /**
      * @param array $options
@@ -34,83 +43,108 @@ abstract class AssetClient implements AssetClientInterface
         $this->tmpDir = (isset($options['tmpDir']))
             ? $options['tmpDir']
             : '/tmp';
+
+        $this->rootUrl = (isset($options['rootUrl']))
+            ? $options['rootUrl']
+            : '';
     }
 
     /**
-     * Récupère l'url du dépôt des assets
-     *
      * @return string
      */
     public function getRootUrl()
     {
-        return Configure::read('assets.url.root');
+        return $this->rootUrl;
     }
 
     /**
-     * Récupère l'url d'accès au fichier
+     * Get file access URI
      *
-     * @param string Nom du fichier sur l'asset
-     * @return string Url complète du fichier
-     * @throws Exception
+     * @param string $assetFile
+     * @return string $url
+     * @throws \Exception
      */
-    public function getUrl($filename)
+    public function getUrl($assetFile)
     {
         $assetRoot = $this->getRootUrl();
 
         if (empty($assetRoot)) {
-            throw new Exception(
+            throw new \Exception(
                 "Le paramètre de configuration 'url.assets.root' n'est pas défini."
             );
         }
-        return $assetRoot . $filename;
+        return $assetRoot . $assetFile;
     }
 
     /**
-     * @param string $assetFile
-     * @param string $assetDir
-     * @return bool
+     * @param string $oldAssetFile
+     * @param string $destAssetDir
+     * @param int $behaviorIfDestExists
+     * @return string
      * @throws AssetMoveException
      */
-    public function move($assetFile, $assetDir)
+    public function move($oldAssetFile, $destAssetDir, $behaviorIfDestExists = self::THROW_EXCEPTION)
     {
-        if (!$this->exists($assetFile)) {
+        if (!$this->exists($oldAssetFile)) {
             throw new AssetMoveException(sprintf(
-                "Asset file (%s) does not exists",
-                $assetFile
+                "Asset file '%s' does not exist",
+                $oldAssetFile
             ));
         }
-        return $this->internalMove($assetFile, $assetDir);
+
+        $newAssetFile = $destAssetDir . DS . basename($oldAssetFile);
+
+        if ($this->exists($newAssetFile)) {
+            if (($behaviorIfDestExists === self::THROW_EXCEPTION)) {
+                throw new AssetMoveException(sprintf(
+                    "Destination file '%s' already exists",
+                    $newAssetFile
+                ));
+            }
+            $this->remove($newAssetFile);
+        }
+
+        return $this->internalMove($oldAssetFile, $newAssetFile);
     }
 
     /**
-     * @param string $assetFile
-     * @param string $assetDir
-     * @return bool
+     * Beware, download file for uploading it with a new name. Exists for convenience,
+     * override it for performance.
+     *
+     * @param string $oldAssetFile
+     * @param string $newAssetFile
+     * @return string
      */
-    protected function internalMove($assetFile, $assetDir)
+    protected function internalMove($oldAssetFile, $newAssetFile)
     {
-        $newAssetFile = $assetDir . DS . basename($assetFile);
-        $localFile = $this->get($assetFile);
+        $localFile = $this->get($oldAssetFile);
+        $this->put($localFile, $newAssetFile);
+        $this->remove($oldAssetFile);
 
-        return $this->put($localFile, $newAssetFile);
+        return $newAssetFile;
     }
 
     /**
-     * Copie un fichier dans l'asset
+     * Put given local file on asset
      *
      * @param string $localFile
      * @param string $assetFile
-     * @param boolean $toDelete
-     * @return boolean true
+     * @param bool $toDelete
+     * @return bool true
+     * @throws AssetPutException
      */
     public function put($localFile, $assetFile, $toDelete = false)
     {
         if ('http' === substr($localFile, 0, 4)) {
-            $localFile = $this->getDistantFile($localFile, $assetFile);
+            $localFile = $this->uploadRemoteFile($localFile, $assetFile);
             $toDelete = true;
         }
 
-        $this->internalPut($localFile, $assetFile);
+        if (!$this->internalPut($localFile, $assetFile)) {
+            throw new AssetPutException(
+                sprintf("Unable to put local file %s on asset %s", $localFile, $assetFile)
+            );
+        }
 
         if ($toDelete) {
             unlink($localFile);
@@ -119,14 +153,12 @@ abstract class AssetClient implements AssetClientInterface
     }
 
     /**
-     * Copie un fichier http en local et retourne le nom du fichier créé
-     *
      * @param string $localfile
      * @param string $assetFile
      * @return string
-     * @throws AssetPutException Impossible de copier le fichier distant
+     * @throws AssetPutException
      */
-    protected function getDistantFile($localfile, $assetFile)
+    protected function uploadRemoteFile($localfile, $assetFile)
     {
         $tmpName = str_replace(['/', '\\'], '', $assetFile);
         $tmpFile = $this->tmpDir . DS . $tmpName;
@@ -134,7 +166,7 @@ abstract class AssetClient implements AssetClientInterface
         if (!copy($localfile, $tmpFile)) {
             throw new AssetPutException(
                 sprintf(
-                    "Impossible de copier le fichier distant '%s' vers '%s'.",
+                    "Unable to copy remote file '%s' to '%s'.",
                     $localfile,
                     $tmpFile
                 )
@@ -144,11 +176,11 @@ abstract class AssetClient implements AssetClientInterface
     }
 
     /**
-     * Récupère un fichier de l'asset et le copie en local
+     * Get asset file and copy it on local system
      *
      * @param string $assetFile
      * @param string $localFile
-     * @return string Nom du nouveau fichier en local
+     * @return string New local file name
      * @throws AssetGetException
      */
     public function get($assetFile, $localFile = null)
@@ -160,16 +192,30 @@ abstract class AssetClient implements AssetClientInterface
         $destinationDir = dirname($localFile);
 
         if (!is_dir($destinationDir) && !mkdir($destinationDir, 0755, true)) {
-            throw new AssetGetException(sprintf(
-                "Cannot create destination directory %s",
-                $destinationDir
-            ));
+            throw new AssetGetException(
+                sprintf(
+                    "Cannot create destination directory %s",
+                    $destinationDir
+                )
+            );
         }
 
-        return $this->internalGet($assetFile, $localFile);
+        if (!$this->internalGet($assetFile, $localFile)) {
+            throw new AssetGetException(
+                sprintf(
+                    "Unable to get asset file %s to local file %s",
+                    $assetFile,
+                    $localFile
+                )
+            );
+        }
+
+        return $localFile;
     }
 
     /**
+     * List asset directory's files. A pattern can be given to filter results.
+     *
      * @param string $dir
      * @param null $pattern
      * @return array
@@ -177,7 +223,7 @@ abstract class AssetClient implements AssetClientInterface
     public function listFiles($dir, $pattern = null)
     {
         $matchingFiles = array();
-        $files = $this->getFiles($dir);
+        $files = $this->internalGetFiles($dir);
 
         foreach ($files as $file) {
             if ($pattern && false === stripos($file, $pattern)) {
@@ -189,6 +235,8 @@ abstract class AssetClient implements AssetClientInterface
     }
 
     /**
+     * Remove given file list from asset
+     *
      * @param array $assetFiles
      * @return bool
      */
@@ -205,10 +253,10 @@ abstract class AssetClient implements AssetClientInterface
     }
 
     /**
-     * Supprime un fichier sur l'asset
+     * Remove given asset file from asset
      *
      * @param string $assetFile
-     * @return boolean
+     * @return bool
      */
     public function remove($assetFile)
     {
@@ -219,10 +267,10 @@ abstract class AssetClient implements AssetClientInterface
     }
 
     /**
-     * Vérifie l'existence d'un fichier sur l'asset
+     * Check if given file exists on asset
      *
      * @param string $assetFile
-     * @return boolean
+     * @return bool
      */
     public function exists($assetFile)
     {
@@ -237,36 +285,51 @@ abstract class AssetClient implements AssetClientInterface
     }
 
     /**
-     * Copie un fichier dans l'asset
+     * Client specific operation to list asset directory's files
+     *
+     * @param string $assetAssetDir
+     * @return array $fileList
+     */
+    public function getFiles($assetAssetDir)
+    {
+        if ($assetAssetDir === '.') {
+            $assetAssetDir = '';
+        }
+        return $this->internalGetFiles($assetAssetDir);
+    }
+
+
+    /**
+     * Client specific opration to put file on asset
      *
      * @param string $localFile
      * @param string $assetFile
-     * @return boolean true
+     * @return bool
      */
     abstract protected function internalPut($localFile, $assetFile);
 
     /**
-     * Récupère un fichier de l'asset et le copie en local
+     * Client specific operation to get asset file
      *
      * @param string $assetFile
      * @param string $localFile
-     * @return string Nom du nouveau fichier en local
+     * @return bool
      */
     abstract protected function internalGet($assetFile, $localFile);
 
     /**
-     * Récupère la liste de fichiers contenu dans un répertoire
+     * Client specific operation to list asset directory's files
      *
-     * @param string $dir
-     * @return mixed False si le répertoire n'existe pas, une liste sinon
+     * @param string $assetDir
+     * @return array $fileList
      */
-    abstract public function getFiles($dir);
+    abstract protected function internalGetFiles($assetDir);
 
     /**
-     * Supprime un fichier sur l'asset
+     * Client specific operation to remove asset file
      *
      * @param string $assetFile
-     * @return boolean
+     * @return bool
      */
     abstract protected function internalRemove($assetFile);
 }
