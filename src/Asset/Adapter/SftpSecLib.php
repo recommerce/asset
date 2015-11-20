@@ -36,7 +36,7 @@ class SftpSecLib extends AssetClient implements AssetClientInterface
     }
 
     /**
-     * Copie un fichier dans l'asset
+     * {@inheritdoc}
      *
      * @param string $localFile
      * @param string $assetFile
@@ -45,17 +45,13 @@ class SftpSecLib extends AssetClient implements AssetClientInterface
      */
     protected function internalPut($localFile, $assetFile)
     {
-        if (!$this->connection->put($assetFile, $localFile, NET_SFTP_LOCAL_FILE)) {
-            throw new AssetPutException(
-                sprintf("Unable to put local file %s on asset %s", $localFile, $assetFile)
-            );
-        }
-
-        return true;
+        return $this
+            ->connection
+            ->put($assetFile, $localFile, NET_SFTP_LOCAL_FILE);
     }
 
     /**
-     * Récupère un fichier de l'asset et le copie en local
+     * {@inheritdoc}
      *
      * @param string $assetFile
      * @param string $localFile
@@ -64,31 +60,22 @@ class SftpSecLib extends AssetClient implements AssetClientInterface
      */
     protected function internalGet($assetFile, $localFile)
     {
-        if (!$this->connection->get($assetFile, $localFile)) {
-            throw new AssetPutException(
-                sprintf(
-                    "Unable to get asset file %s on local filesystem %s",
-                    $assetFile,
-                    $localFile
-                )
-            );
-        }
-        return $localFile;
+        return $this->connection->get($assetFile, $localFile);
     }
 
     /**
-     * Récupère la liste de fichiers contenu dans un répertoire
+     * {@inheritdoc}
      *
-     * @param string $dir
+     * @param string $assetAssetDir
      * @return mixed False si le répertoire n'existe pas, une liste sinon
      */
-    public function getFiles($dir)
+    protected function internalGetFiles($assetAssetDir)
     {
-        return $this->connection->nList($dir);
+        return $this->connection->nList($assetAssetDir);
     }
 
     /**
-     * Supprime un fichier sur l'asset
+     * {@inheritdoc}
      *
      * @param string $assetFile
      * @return boolean
