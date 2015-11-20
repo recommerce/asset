@@ -1,11 +1,5 @@
 {
-    "name":"socle/asset",
-    "repositories": [
-        {
-            "type":"composer",
-            "url": "http://satis.dev.recommerce.org/"
-        }
-    ],
+    "name":"recommerce/asset",
     "require": {
         "aws/aws-sdk-php": "2.8.*",
         "phpseclib/phpseclib": "2.0.*",
