@@ -44,17 +44,17 @@ class S3Client extends AssetClient implements AssetClientInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Récupère la liste de fichiers contenu dans un répertoire
      *
-     * @param string $assetAssetDir
+     * @param string $dir
      * @return mixed        false si le répertoire n'existe pas, une liste sinon
      */
-    protected function internalGetFiles($assetAssetDir)
+    public function getFiles($dir)
     {
         $resultObject = $this->s3Client->listObjects(
             [
                 'Bucket' => $this->bucket,
-                'Prefix' => $assetAssetDir
+                'Prefix' => $dir
             ]
         );
 
@@ -67,7 +67,12 @@ class S3Client extends AssetClient implements AssetClientInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Récupère un fichier de l'asset et le copie en local
+     *
+     * @param string $assetFile
+     * @param string $localFileDir
+     * @param null $toFileName
+     * @return string Nom du nouveau fichier en local
      *
      * @param string $assetFile
      * @param string $localFile
@@ -88,11 +93,11 @@ class S3Client extends AssetClient implements AssetClientInterface
             throw new AssetPutException("An error occurs", 0, $e);
         }
 
-        return true;
+        return $localFile;
     }
 
     /**
-     * {@inheritdoc}
+     * Copie un fichier dans l'asset
      *
      * @throws \Exception
      * @param string $localFile
@@ -119,7 +124,7 @@ class S3Client extends AssetClient implements AssetClientInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Supprime un fichier sur l'asset
      *
      * @param string $assetAssetFile
      * @return boolean
