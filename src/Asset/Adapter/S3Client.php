@@ -47,7 +47,7 @@ class S3Client extends AssetClient implements AssetClientInterface
      * Récupère la liste de fichiers contenu dans un répertoire
      *
      * @param string $dir
-     * @return array $files
+     * @return mixed        false si le répertoire n'existe pas, une liste sinon
      */
     public function getFiles($dir)
     {
@@ -58,17 +58,12 @@ class S3Client extends AssetClient implements AssetClientInterface
             ]
         );
 
-        $files = [];
-        if (isset($resultObject->toArray()['Contents'])) {
-            $files = array_map(
-                function ($element) {
-                    return $element['Key'];
-                },
-                $resultObject->toArray()['Contents']
-            );
-        }
-
-        return $files;
+        return array_map(
+            function ($element) {
+                return $element['Key'];
+            },
+            $resultObject->toArray()['Contents']
+        );
     }
 
     /**

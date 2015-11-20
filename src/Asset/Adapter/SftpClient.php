@@ -66,26 +66,19 @@ class SftpClient extends AssetClient implements AssetClientInterface
     }
 
     /**
-     * Copie un fichier dans l'asset
+     * {@inheritdoc}
      *
      * @param string $localFile
      * @param string $assetFile
      * @return boolean true
-     * @throws AssetPutException
      */
     protected function internalPut($localFile, $assetFile)
     {
-        if (!ssh2_scp_recv($this->connection, $assetFile, $localFile)) {
-            throw new AssetPutException(
-                sprintf("Unable to put local file %s on asset %s", $localFile, $assetFile)
-            );
-        }
-
-        return true;
+        return ssh2_scp_recv($this->connection, $assetFile, $localFile);
     }
 
     /**
-     * Récupère un fichier de l'asset et le copie en local
+     * {@inheritdoc}
      *
      * @param string $assetFile
      * @param string $localFile
@@ -107,15 +100,15 @@ class SftpClient extends AssetClient implements AssetClientInterface
     }
 
     /**
-     * Récupère la liste de fichiers contenu dans un répertoire
+     * {@inheritdoc}
      *
-     * @param string $dir
+     * @param string $assetAssetDir
      * @return mixed False si le répertoire n'existe pas, une liste sinon
      */
-    public function getFiles($dir)
+    protected function internalGetFiles($assetAssetDir)
     {
         $files = [];
-        $handle = opendir("ssh2.sftp://{$this->stream}/$dir");
+        $handle = opendir("ssh2.sftp://{$this->stream}/$assetAssetDir");
 
         while (false !== ($file = readdir($handle))) {
             if (in_array($file, ['.', '..'])) {
@@ -130,7 +123,7 @@ class SftpClient extends AssetClient implements AssetClientInterface
     }
 
     /**
-     * Supprime un fichier sur l'asset
+     * {@inheritdoc}
      *
      * @param string $assetFile
      * @return boolean
