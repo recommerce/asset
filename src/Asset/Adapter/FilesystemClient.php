@@ -4,6 +4,7 @@ namespace Recommerce\Asset\Adapter;
 
 use Recommerce\Asset\AssetClient;
 use Recommerce\Asset\AssetClientInterface;
+use Recommerce\Asset\Exception\AssetGetException;
 use Recommerce\Asset\Exception\AssetPutException;
 
 /**
@@ -42,7 +43,7 @@ class FilesystemClient extends AssetClient implements AssetClientInterface
         $fulldir = $this->repository . DS . $assetAssetDir;
 
         if (!is_dir($fulldir)) {
-            throw new \Exception(
+            throw new AssetGetException(
                 sprintf("'%s' is not an existing directory.", $fulldir)
             );
         }

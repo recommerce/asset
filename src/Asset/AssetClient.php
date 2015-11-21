@@ -287,15 +287,15 @@ abstract class AssetClient implements AssetClientInterface
     /**
      * Client specific operation to list asset directory's files
      *
-     * @param string $assetAssetDir
+     * @param string $assetDir
      * @return array $fileList
      */
-    public function getFiles($assetAssetDir)
+    public function getFiles($assetDir)
     {
-        if ($assetAssetDir === '.') {
-            $assetAssetDir = '';
+        if ($assetDir === '.') {
+            $assetDir = '';
         }
-        return $this->internalGetFiles($assetAssetDir);
+        return $this->internalGetFiles($assetDir);
     }
 
 
