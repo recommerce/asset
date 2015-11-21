@@ -79,9 +79,9 @@ class FeatureContext implements Context, SnippetAcceptingContext
     }
 
     /**
-     * @Given repository :arg1 does not exists
+     * @Given repository :arg1 does not exist
      */
-    public function repositoryDoesNotExists($dir)
+    public function repositoryDoesNotExist($dir)
     {
         $fullDirectory = $this->assetFileRoot . DIRECTORY_SEPARATOR . $dir;
 
@@ -122,9 +122,9 @@ class FeatureContext implements Context, SnippetAcceptingContext
     }
 
     /**
-     * @When I list :arg1 with pattern :arg2
+     * @When I list :arg1 with filter :arg2
      */
-    public function iListWithPattern($dir, $pattern)
+    public function iListWithFilter($dir, $pattern)
     {
         $assetClient = new \Recommerce\Asset\Adapter\FilesystemClient($this->assetFileRoot);
 
