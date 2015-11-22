@@ -23,10 +23,11 @@
         <whitelist processUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">src</directory>
         </whitelist>
+
     </filter>
 
     <testsuites>
-        <testsuite name="all">
+        <testsuite name="Stock">
             <directory>tests</directory>
         </testsuite>
     </testsuites>
