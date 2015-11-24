@@ -2,6 +2,8 @@
 
 namespace Recommerce\Asset;
 
+use Recommerce\Asset\Exception\AssetMoveException;
+
 /**
  * AssetClient est une interface permettant le stockage de fichiers à des fins d'accès via
  * le protocole HTTP.
