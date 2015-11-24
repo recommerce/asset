@@ -222,7 +222,7 @@ abstract class AssetClient implements AssetClientInterface
      */
     public function listFiles($dir, $pattern = null)
     {
-        $matchingFiles = array();
+        $matchingFiles = [];
         $files = $this->internalGetFiles($dir);
 
         foreach ($files as $file) {
