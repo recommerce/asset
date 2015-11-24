@@ -9,7 +9,7 @@ Current implementations are :
 * FileSystem : Use your local file system as asset ;
 * FTP : FTP server (not SFTP).
 
-### Installation with composer
+## Installation with composer
 
 ```sh
 composer require recommerce/asset:1.0.*
