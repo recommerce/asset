@@ -31,7 +31,7 @@ composer update
                     'key'    => 'YOUR_S3_KEY',
                     'secret' => 'YOUR_S3_SECRET'
                 ]),
-                'mxtbuckettest'
+                'YOUR_S3_BUCKET_NAME'
             ]
         ],
     ];
@@ -92,14 +92,14 @@ composer update
 ### Basics
 ```php
 // Get asset file on local file system
-$assetClient->get('argus/buyers/afone mobile_logo.png', '/tmp/afone mobile_logo.png');
+$assetClient->get('path/to/remote_file.png', '/tmp/my_local_file.png');
 
 // Put local file on asset
-$assetClient->put('/tmp/afone mobile_logo.png', 'argus/afone mobile_logo.png');
+$assetClient->put('/tmp/my_local_file.png', 'path/to/remote_file.png');
 
 // Check file existence on asset
-$assetClient->exists('argus/afone mobile_logo.png');
+$assetClient->exists('path/to/remote_file.png');
 
 // Remove asset file
-$assetClient->remove('argus/afone mobile_logo.png');
+$assetClient->remove('path/to/remote_file.png');
 ```
