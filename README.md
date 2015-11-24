@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/recommerce/asset.svg?branch=master)](https://travis-ci.org/recommerce/asset)
+
 # Recommerce asset
 
 This library provide an interface and some implementation to handle files on assets.
