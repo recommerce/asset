@@ -10,10 +10,9 @@ use Recommerce\Asset\Exception\AssetPutException;
 use Recommerce\Asset\Exception\AssetRemoveException;
 
 /**
- * S3Client est une interface utilisant le SDK d'amazone S3Client.
- * Pour plus d'informations, se reporter à la documentation de référence :
- * http://docs.amazonwebservices.com/AWSSDKforPHP/latest/#m=AmazonS3
+ * S3Client uses AwsS3Client SDK.
  *
+ * @see http://docs.amazonwebservices.com/AWSSDKforPHP/latest/#m=AmazonS3
  * @see Asset
  * @package AssetClient.S3Client
  */
@@ -32,7 +31,7 @@ class S3Client extends AssetClient implements AssetClientInterface
 
     /**
      * @param AwsClientInterface $s3Client
-     * @param $bucket
+     * @param string $bucket
      * @param array $options
      */
     public function __construct(AwsClientInterface $s3Client, $bucket, array $options = [])
@@ -44,12 +43,12 @@ class S3Client extends AssetClient implements AssetClientInterface
     }
 
     /**
-     * Récupère la liste de fichiers contenu dans un répertoire
+     * {@inheritdoc}
      *
-     * @param string $dir
-     * @return mixed        false si le répertoire n'existe pas, une liste sinon
+     * @param string $assetDir
+     * @return array $fileList
      */
-    public function getFiles($dir)
+    protected function internalGetFiles($dir)
     {
         $resultObject = $this->s3Client->listObjects(
             [
@@ -67,16 +66,11 @@ class S3Client extends AssetClient implements AssetClientInterface
     }
 
     /**
-     * Récupère un fichier de l'asset et le copie en local
-     *
-     * @param string $assetFile
-     * @param string $localFileDir
-     * @param null $toFileName
-     * @return string Nom du nouveau fichier en local
+     * {@inheritdoc}
      *
      * @param string $assetFile
      * @param string $localFile
-     * @return string Nom du nouveau fichier en local
+     * @return string
      * @throws AssetPutException
      */
     protected function internalGet($assetFile, $localFile)
@@ -97,7 +91,7 @@ class S3Client extends AssetClient implements AssetClientInterface
     }
 
     /**
-     * Copie un fichier dans l'asset
+     * {@inheritdoc}
      *
      * @throws \Exception
      * @param string $localFile
@@ -124,7 +118,7 @@ class S3Client extends AssetClient implements AssetClientInterface
     }
 
     /**
-     * Supprime un fichier sur l'asset
+     * {@inheritdoc}
      *
      * @param string $assetAssetFile
      * @return boolean
@@ -146,7 +140,7 @@ class S3Client extends AssetClient implements AssetClientInterface
     }
 
     /**
-     * Vérifie l'existence d'un fichier sur l'asset
+     * {@inheritdoc}
      *
      * @param string $assetAssetFile
      * @return boolean

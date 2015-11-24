@@ -4,6 +4,7 @@ namespace Recommerce\Asset\Adapter;
 
 use Recommerce\Asset\AssetClient;
 use Recommerce\Asset\AssetClientInterface;
+use Recommerce\Asset\Exception\AssetMoveException;
 use Recommerce\Asset\Exception\AssetPutException;
 
 class FtpClient extends AssetClient implements AssetClientInterface
@@ -51,6 +52,7 @@ class FtpClient extends AssetClient implements AssetClientInterface
         if (!$connection || !ftp_login($connection, $this->login, $this->password)) {
             return null;
         }
+        ftp_pasv($connection, true);
 
         return $connection;
     }
@@ -64,40 +66,44 @@ class FtpClient extends AssetClient implements AssetClientInterface
     }
 
     /**
-     * @param string $assetFile
-     * @param string $assetDir
+     * {@inheritdoc}
+     *
+     * @param string $oldAssetFile
+     * @param string $newAssetFile
      * @return bool
+     * @throws AssetMoveException
      */
-    protected function internalMove($assetFile, $assetDir)
+    protected function internalMove($oldAssetFile, $newAssetFile)
     {
-        $newAssetFile = $assetDir . DS . basename($assetFile);
+        $this->reconnectIfNeeded();
 
-        return ftp_rename($this->connection, $assetFile, $newAssetFile);
+        if (!ftp_rename($this->connection, $oldAssetFile, $newAssetFile)) {
+            throw new AssetMoveException(sprintf(
+                "Unable to move '%s' to '%s'.",
+                $oldAssetFile,
+                $newAssetFile
+            ));
+        }
+
+        return $newAssetFile;
     }
 
     /**
-     * Copie un fichier dans l'asset
+     * {@inheritdoc}
      *
      * @param string $localFile
      * @param string $assetFile
      * @return boolean true
-     * @throws AssetPutException
      */
     protected function internalPut($localFile, $assetFile)
     {
-        ftp_pasv($this->connection, true);
+        $this->reconnectIfNeeded();
 
-        if (!ftp_put($this->connection, $assetFile, $localFile, FTP_BINARY)) {
-            throw new AssetPutException(
-                sprintf("Unable to put local file %s on asset %s", $localFile, $assetFile)
-            );
-        }
-
-        return true;
+        return ftp_put($this->connection, $assetFile, $localFile, FTP_BINARY);
     }
 
     /**
-     * Récupère un fichier de l'asset et le copie en local
+     * {@inheritdoc}
      *
      * @param string $assetFile
      * @param string $localFile
@@ -106,41 +112,34 @@ class FtpClient extends AssetClient implements AssetClientInterface
      */
     protected function internalGet($assetFile, $localFile)
     {
-        ftp_pasv($this->connection, true);
+        $this->reconnectIfNeeded();
 
-        if (!ftp_get($this->connection, $localFile, $assetFile, FTP_BINARY)) {
-            throw new AssetPutException(
-                sprintf(
-                    "Unable to get asset file %s on local filesystem %s",
-                    $assetFile,
-                    $localFile
-                )
-            );
-        }
-        return $localFile;
+        return ftp_get($this->connection, $localFile, $assetFile, FTP_BINARY);
     }
 
     /**
-     * Récupère la liste de fichiers contenu dans un répertoire
+     * {@inheritdoc}
      *
-     * @param string $dir
+     * @param string $assetAssetDir
      * @return mixed False si le répertoire n'existe pas, une liste sinon
      */
-    public function getFiles($dir)
+    protected function internalGetFiles($assetAssetDir)
     {
-        ftp_pasv($this->connection, true);
-        return ftp_nlist($this->connection, $dir);
+        $this->reconnectIfNeeded();
+
+        return ftp_nlist($this->connection, $assetAssetDir);
     }
 
     /**
-     * Supprime un fichier sur l'asset
+     * {@inheritdoc}
      *
      * @param string $assetFile
      * @return boolean
      */
     protected function internalRemove($assetFile)
     {
-        ftp_pasv($this->connection, true);
+        $this->reconnectIfNeeded();
+
         return ftp_delete($this->connection, $assetFile);
     }
 }
