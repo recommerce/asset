@@ -57,12 +57,17 @@ class S3Client extends AssetClient implements AssetClientInterface
             ]
         );
 
-        return array_map(
-            function ($element) {
-                return $element['Key'];
-            },
-            $resultObject->toArray()['Contents']
-        );
+        $fileList = [];
+        if (isset($resultObject->toArray()['Contents'])) {
+            $fileList = array_map(
+                function ($element) {
+                    return $element['Key'];
+                },
+                $resultObject->toArray()['Contents']
+            );
+        }
+
+        return $fileList;
     }
 
     /**
