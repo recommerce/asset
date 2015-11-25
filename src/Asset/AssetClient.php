@@ -36,6 +36,13 @@ abstract class AssetClient implements AssetClientInterface
     protected $rootUrl;
 
     /**
+     * List of errors
+     *
+     * @var array
+     */
+    private $errors = [];
+
+    /**
      * @param array $options
      */
     protected function __construct(array $options = [])
