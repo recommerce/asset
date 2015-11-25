@@ -20,7 +20,6 @@ composer update
 
 ### AWS S3 client creation
 ```php
-    // AWS S3 instantiation
     use Recommerce\Asset\AssetFactory;
     use Recommerce\Asset\Adapter\S3Client;
     use Zend\ServiceManager\ServiceManager;
@@ -46,7 +45,6 @@ composer update
 
 ### Filesystem client creation
 ```php
-    // FileSystem instantiation
     use Recommerce\Asset\AssetFactory;
     use Recommerce\Asset\Adapter\FileSystemClient;
     use Zend\ServiceManager\ServiceManager;
@@ -68,7 +66,6 @@ composer update
 
 ### FTP client creation
 ```php
-    // FTP instantiation
     use Recommerce\Asset\AssetFactory;
     use Recommerce\Asset\Adapter\FtpClient;
     use Zend\ServiceManager\ServiceManager;
