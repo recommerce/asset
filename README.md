@@ -2,7 +2,7 @@
 
 # Recommerce asset
 
-This library provide an interface and some implementation to handle files on assets.
+This library provides an interface and some implementation to handle files on assets.
 
 Current implementations are :
 * AWS S3 : Amazon S3 service (using AWS S3 SDK library) ;
@@ -18,7 +18,7 @@ composer update
 
 ## Usage examples
 
-### AWS S3 instantiation
+### AWS S3 client creation
 ```php
     // AWS S3 instantiation
     use Recommerce\Asset\AssetFactory;
@@ -44,7 +44,7 @@ composer update
     $assetClient = (new AssetFactory())->createService($serviceManager);
 ```
 
-### Filesystem instantiation
+### Filesystem client creation
 ```php
     // FileSystem instantiation
     use Recommerce\Asset\AssetFactory;
@@ -66,7 +66,7 @@ composer update
     $assetClient = (new AssetFactory())->createService($serviceManager);
 ```
 
-### FTP instantiation
+### FTP client creation
 ```php
     // FTP instantiation
     use Recommerce\Asset\AssetFactory;
