@@ -6,6 +6,7 @@ use Recommerce\Asset\AssetClient;
 use Recommerce\Asset\AssetClientInterface;
 use Recommerce\Asset\Exception\AssetMoveException;
 use Recommerce\Asset\Exception\AssetPutException;
+use Recommerce\Asset\Exception\ConnectionException;
 
 class FtpClient extends AssetClient implements AssetClientInterface
 {
