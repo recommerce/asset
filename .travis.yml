@@ -5,3 +5,6 @@ php:
 install:
   - composer self-update
   - composer update
+addons:
+  code_climate:
+    repo_token: 533b530dfbce5d0014b00b6e21c14a5c14c34aaab5b4b218b61daa248125c630
