@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/recommerce/asset.svg?branch=master)](https://travis-ci.org/recommerce/asset)
+[![Build Status](https://travis-ci.org/recommerce/asset.svg?branch=master)](https://travis-ci.org/recommerce/asset) [![Code Climate](https://codeclimate.com/github/recommerce/asset/badges/gpa.svg)](https://codeclimate.com/github/recommerce/asset) [![Test Coverage](https://codeclimate.com/github/recommerce/asset/badges/coverage.svg)](https://codeclimate.com/github/recommerce/asset/coverage)
 
 # Recommerce asset
 
