@@ -45,7 +45,7 @@ abstract class AssetClient implements AssetClientInterface
     /**
      * @param array $options
      */
-    protected function __construct(array $options = [])
+    public function __construct(array $options = [])
     {
         $this->tmpDir = (isset($options['tmpDir']))
             ? $options['tmpDir']
@@ -80,7 +80,7 @@ abstract class AssetClient implements AssetClientInterface
                 "Le paramètre de configuration 'url.assets.root' n'est pas défini."
             );
         }
-        return $assetRoot . $assetFile;
+        return $assetRoot . '/' . $assetFile;
     }
 
     /**
