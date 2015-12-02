@@ -4,6 +4,38 @@ namespace Recommerce\Asset;
 
 class AssetClientTest extends \PHPUnit_Framework_TestCase
 {
+    private $rootUrl = 'http://recommerce.com';
+
+    private function buildInstance(array $methods = [])
+    {
+        return $this
+            ->getMockBuilder(AssetClient::class)
+            ->setConstructorArgs([['rootUrl' => $this->rootUrl]])
+            ->setMethods($methods)
+            ->getMockForAbstractClass();
+    }
+
+    public function testGetUrl()
+    {
+        $assetFile = 'assetFile.txt';
+        $expectedUrl = $this->rootUrl . '/' . $assetFile;
+
+        $this->assertSame($expectedUrl, $this->buildInstance()->getUrl($assetFile));
+    }
+
+    /**
+     * @expectedException \Exception
+     */
+    public function testGetUrlWithoutRoot()
+    {
+        $assetFile = 'assetFile.txt';
+
+        $this
+            ->getMockBuilder(AssetClient::class)
+            ->getMockForAbstractClass()
+            ->getUrl($assetFile);
+    }
+
     public function testPut()
     {
         $localFile = '/tmp/anyfile.txt';
@@ -42,6 +74,7 @@ class AssetClientTest extends \PHPUnit_Framework_TestCase
     public function testGet()
     {
         $assetFile = 'anyfile.txt';
+        $localFile = '/tmp/anyfile.txt';
 
         $instance = $this->buildInstance(['internalGet']);
         $instance
@@ -49,7 +82,7 @@ class AssetClientTest extends \PHPUnit_Framework_TestCase
             ->method('internalGet')
             ->willReturn(true);
 
-        $this->assertSame(DIRECTORY_SEPARATOR . $assetFile, $instance->get($assetFile));
+        $this->assertSame($localFile, $instance->get($assetFile));
     }
 
     public function testGetWithLocalfile()
@@ -338,14 +371,5 @@ class AssetClientTest extends \PHPUnit_Framework_TestCase
             ['.', ''],
             ['someDir', 'someDir']
         ];
-    }
-
-    private function buildInstance(array $methods = [])
-    {
-        return $this
-            ->getMockBuilder(AssetClient::class)
-            ->disableOriginalConstructor()
-            ->setMethods($methods)
-            ->getMockForAbstractClass();
     }
 }
