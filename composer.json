@@ -1,7 +1,7 @@
 {
     "name":"recommerce/asset",
     "require": {
-        "aws/aws-sdk-php": "^2.0",
+        "aws/aws-sdk-php": "~2.8",
         "zendframework/zend-servicemanager": "~2.5"
     },
     "require-dev": {
