@@ -2,6 +2,7 @@
 
 namespace Recommerce\Asset;
 
+use Recommerce\Asset\Adapter\Factory\FilesystemClientFactory;
 use Recommerce\Asset\Adapter\FilesystemClient;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
@@ -40,9 +41,9 @@ class AssetFactoryTest extends \PHPUnit_Framework_TestCase
                     'Config',
                     [
                         'asset' => [
-                            'name' => FilesystemClient::class,
-                            'args' => [
-                                '/tmp'
+                            'factory' => FilesystemClientFactory::class,
+                            'params' => [
+                                'repository' => '/tmp'
                             ]
 
                         ]

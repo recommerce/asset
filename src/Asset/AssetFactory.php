@@ -31,14 +31,16 @@ class AssetFactory implements FactoryInterface
      */
     public function createServiceFromConfig(array $config)
     {
-        if (empty($config['name'])) {
+        if (empty($config['factory'])) {
             throw new InvalidConfigurationException("Asset configuration was not found.");
         }
 
-        $reflect  = new \ReflectionClass($config['name']);
+        $class = $config['factory'];
 
-        $args = array_map(function($value) { return is_callable($value) ? call_user_func($value) : $value;}, $config['args']);
+        if (!class_exists($class)) {
+            throw new InvalidConfigurationException("Unknown asset factory");
+        }
 
-        return $reflect->newInstanceArgs($args);
+        return (new $class)->create($config['params']);
     }
 }
