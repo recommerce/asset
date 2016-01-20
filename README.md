@@ -12,7 +12,7 @@ Current implementations are :
 ## Installation with composer
 
 ```sh
-composer require recommerce/asset:1.0.*
+composer require recommerce/asset:2.0.*
 composer update
 ```
 
@@ -21,18 +21,16 @@ composer update
 ### AWS S3 client creation
 ```php
     use Recommerce\Asset\AssetFactory;
-    use Recommerce\Asset\Adapter\S3Client;
+    use Recommerce\Asset\Adapter\Factory\S3ClientFactory;
     use Zend\ServiceManager\ServiceManager;
 
     $config = [
         'asset' => [
-            'name' => S3Client::class,
-            'args' => [
-                AwsS3Client::factory([
-                    'key'    => 'YOUR_S3_KEY',
-                    'secret' => 'YOUR_S3_SECRET'
-                ]),
-                'YOUR_S3_BUCKET_NAME'
+            'factory' => S3ClientFactory::class,
+            'params' => [
+                'key'    => 'YOUR_S3_KEY',
+                'secret' => 'YOUR_S3_SECRET',
+                'bucket' => 'YOUR_S3_BUCKET_NAME'
             ]
         ],
     ];
@@ -42,20 +40,17 @@ composer update
 
     $assetClient = (new AssetFactory())->createService($serviceManager);
 ```
-You can also use a closure to inject arguments, especially to avoid loading classes in configuration.
-NB : If you need to pass a closure as an argument, you'll have to pass it through another closure.
-
 ### Filesystem client creation
 ```php
     use Recommerce\Asset\AssetFactory;
-    use Recommerce\Asset\Adapter\FileSystemClient;
+    use Recommerce\Asset\Adapter\Factory\FileSystemClientFactory;
     use Zend\ServiceManager\ServiceManager;
 
     $config = [
         'asset' => [
-            'name' => S3Client::class,
-            'args' => [
-                'YOUR_LOCAL_ASSET_REPOSITORY'
+            'factory' => FileSystemClientFactory::class,
+            'params' => [
+                'repository' => 'YOUR_LOCAL_ASSET_REPOSITORY'
             ]
         ],
     ];
@@ -69,13 +64,13 @@ NB : If you need to pass a closure as an argument, you'll have to pass it throug
 ### FTP client creation
 ```php
     use Recommerce\Asset\AssetFactory;
-    use Recommerce\Asset\Adapter\FtpClient;
+    use Recommerce\Asset\Adapter\Factory\FtpClientFactory;
     use Zend\ServiceManager\ServiceManager;
 
     $config = [
         'asset' => [
-            'name' => FtpClient::class,
-            'args' => [
+            'factory' => FtpClientFactory::class,
+            'params' => [
                 'hostname' => 'YOUR_HOST',
                 'username' => 'YOUR_USERNAME',
                 'password' => 'YOUR_PASSWORD',
