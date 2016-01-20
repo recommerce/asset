@@ -42,6 +42,8 @@ composer update
 
     $assetClient = (new AssetFactory())->createService($serviceManager);
 ```
+You can also use a closure to inject arguments, especially to avoid loading classes in configuration.
+NB : If you need to pass a closure as an argument, you'll have to pass it through another closure.
 
 ### Filesystem client creation
 ```php
