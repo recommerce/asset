@@ -37,6 +37,8 @@ class AssetFactory implements FactoryInterface
 
         $reflect  = new \ReflectionClass($config['name']);
 
-        return $reflect->newInstanceArgs($config['args']);
+        $args = array_map(function($value) { return is_callable($value) ? call_user_func($value) : $value;}, $config['args']);
+
+        return $reflect->newInstanceArgs($args);
     }
 }
