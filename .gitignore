@@ -3,3 +3,4 @@ vendor
 config/application.config.php
 build
 tests/assetClient.php
+test.php
