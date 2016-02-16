@@ -45,14 +45,6 @@ interface AssetClientInterface
     public function get($assetFile, $localFile);
 
     /**
-     * Récupère la liste de fichiers contenu dans un répertoire
-     *
-     * @param string $assetAssetDir
-     * @return mixed False si le répertoire n'existe pas, une liste sinon
-     */
-    public function getFiles($assetAssetDir);
-
-    /**
      * @param string $dir
      * @param null $pattern
      * @return array
