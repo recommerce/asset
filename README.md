@@ -19,17 +19,36 @@ composer update
 ## Usage examples
 
 ### AWS S3 client creation
+#### Direct config
+```php
+    use Recommerce\Asset\Adapter\Factory\S3ClientFactory;
+    use Recommerce\Asset\AssetFactory;
+
+    $config = [
+        'factory' => S3ClientFactory::class,
+        'params' => [
+            AwsS3Client::factory([
+                'key'    => 'YOUR_S3_KEY',
+                'secret' => 'YOUR_S3_SECRET'
+            ]),
+            'YOUR_S3_BUCKET_NAME'
+        ]
+    ];
+
+    $assetClient = (new AssetFactory())->createServiceFromConfig($config);
+```
+
 #### Service manager
 ```php
+    use Recommerce\Asset\Adapter\Factory\S3ClientFactory;
     use Recommerce\Asset\AssetFactory;
-    use Recommerce\Asset\Adapter\S3Client;
     use Zend\ServiceManager\Config;
     use Zend\ServiceManager\ServiceManager;
 
     $config = [
         'asset' => [
-            'name' => S3Client::class,
-            'args' => [
+            'factory' => S3ClientFactory::class,
+            'params' => [
                 AwsS3Client::factory([
                     'key'    => 'YOUR_S3_KEY',
                     'secret' => 'YOUR_S3_SECRET'
@@ -50,26 +69,8 @@ composer update
     $assetClient = $serviceManager->get('recommerce.asset.asset-client');
 ```
 
-#### Direct config
-```php
-    use Recommerce\Asset\AssetFactory;
-    use Recommerce\Asset\Adapter\S3Client;
-
-    $config = [
-        'name' => S3Client::class,
-        'args' => [
-            AwsS3Client::factory([
-                'key'    => 'YOUR_S3_KEY',
-                'secret' => 'YOUR_S3_SECRET'
-            ]),
-            'YOUR_S3_BUCKET_NAME'
-        ]
-    ];
-
-    $assetClient = (new AssetFactory())->createServiceFromConfig($config);
-```
-
 ### Filesystem client creation
+#### Direct config
 ```php
     use Recommerce\Asset\AssetFactory;
     use Recommerce\Asset\Adapter\Factory\FileSystemClientFactory;
@@ -85,6 +86,7 @@ composer update
 ```
 
 ### FTP client creation
+#### Direct config
 ```php
     use Recommerce\Asset\AssetFactory;
     use Recommerce\Asset\Adapter\Factory\FtpClientFactory;
