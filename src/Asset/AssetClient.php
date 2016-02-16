@@ -241,7 +241,7 @@ abstract class AssetClient implements AssetClientInterface
                 continue;
             }
 
-            // ftp_nlist can return complete or relative path, depending on server
+            // if relative path, add dir
             if (0 !== strpos($file, $dir)) {
                 $file = $dir . '/' . $file;
             }
