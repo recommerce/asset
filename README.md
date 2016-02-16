@@ -12,16 +12,18 @@ Current implementations are :
 ## Installation with composer
 
 ```sh
-composer require recommerce/asset:1.0.*
+composer require recommerce/asset:2.0.*
 composer update
 ```
 
 ## Usage examples
 
 ### AWS S3 client creation
+#### Service manager
 ```php
     use Recommerce\Asset\AssetFactory;
     use Recommerce\Asset\Adapter\S3Client;
+    use Zend\ServiceManager\Config;
     use Zend\ServiceManager\ServiceManager;
 
     $config = [
@@ -33,32 +35,6 @@ composer update
                     'secret' => 'YOUR_S3_SECRET'
                 ]),
                 'YOUR_S3_BUCKET_NAME'
-            ]
-        ],
-    ];
-
-    $serviceManager = new ServiceManager();
-    $serviceManager->setService('Config', $config);
-
-    $assetClient = (new AssetFactory())->createService($serviceManager);
-```
-
-### Filesystem client creation
-#### Service manager
-```php
-    use Recommerce\Asset\AssetFactory;
-    use Recommerce\Asset\Adapter\FtpClient;
-    use Zend\ServiceManager\Config;
-    use Zend\ServiceManager\ServiceManager;
-
-    $config = [
-        'asset' => [
-            'name' => FtpClient::class,
-            'args' => [
-                'hostname' => '5.2.251.209',
-                'username' => 'RS_test',
-                'password' => 'TestPass2015',
-                'port' => 991,
             ]
         ],
         'service_manager' => [
@@ -77,44 +53,53 @@ composer update
 #### Direct config
 ```php
     use Recommerce\Asset\AssetFactory;
-    use Recommerce\Asset\Adapter\FtpClient;
+    use Recommerce\Asset\Adapter\S3Client;
 
     $config = [
-        'name' => FtpClient::class,
+        'name' => S3Client::class,
         'args' => [
-            'hostname' => '5.2.251.209',
-            'username' => 'RS_test',
-            'password' => 'TestPass2015',
-            'port' => 991,
+            AwsS3Client::factory([
+                'key'    => 'YOUR_S3_KEY',
+                'secret' => 'YOUR_S3_SECRET'
+            ]),
+            'YOUR_S3_BUCKET_NAME'
         ]
     ];
 
     $assetClient = (new AssetFactory())->createServiceFromConfig($config);
 ```
 
+### Filesystem client creation
+```php
+    use Recommerce\Asset\AssetFactory;
+    use Recommerce\Asset\Adapter\Factory\FileSystemClientFactory;
+
+    $config = [
+        'factory' => FileSystemClientFactory::class,
+        'params' => [
+            'repository' => 'YOUR_LOCAL_ASSET_REPOSITORY'
+        ]
+    ];
+
+    $assetClient = (new AssetFactory())->createServiceFromConfig($config);
+```
 
 ### FTP client creation
 ```php
     use Recommerce\Asset\AssetFactory;
-    use Recommerce\Asset\Adapter\FtpClient;
-    use Zend\ServiceManager\ServiceManager;
+    use Recommerce\Asset\Adapter\Factory\FtpClientFactory;
 
     $config = [
-        'asset' => [
-            'name' => FtpClient::class,
-            'args' => [
-                'hostname' => 'YOUR_HOST',
-                'username' => 'YOUR_USERNAME',
-                'password' => 'YOUR_PASSWORD',
-                'port' => 'YOUR_PORT' // 21 by default,
-            ]
-        ],
+        'factory' => FtpClientFactory::class,
+        'params' => [
+            'hostname' => 'YOUR_HOST',
+            'username' => 'YOUR_USERNAME',
+            'password' => 'YOUR_PASSWORD',
+            'port' => 'YOUR_PORT' // 21 by default,
+        ]
     ];
 
-    $serviceManager = new ServiceManager();
-    $serviceManager->setService('Config', $config);
-
-    $assetClient = (new AssetFactory())->createService($serviceManager);
+    $assetClient = (new AssetFactory())->createServiceFromConfig($config);
 ```
 
 ### Basics
