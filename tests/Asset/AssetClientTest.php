@@ -216,8 +216,8 @@ class AssetClientTest extends \PHPUnit_Framework_TestCase
         $dir = 'someDir';
 
         $files = [
-            'anyFile1.txt',
-            'anyFile2.xml'
+            'someDir/anyFile1.txt',
+            'someDir/anyFile2.xml'
         ];
 
         $instance = $this->buildInstance(['internalGetFiles']);
@@ -228,6 +228,32 @@ class AssetClientTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame(
             $files,
+            $instance->listFiles('someDir')
+        );
+    }
+
+    public function testListFilesReturningRelativeFilename()
+    {
+        $dir = 'someDir';
+
+        $files = [
+            'anyFile1.txt',
+            'anyFile2.xml'
+        ];
+
+        $expectedFiles = [
+            'someDir/anyFile1.txt',
+            'someDir/anyFile2.xml'
+        ];
+
+        $instance = $this->buildInstance(['internalGetFiles']);
+        $instance
+            ->method('internalGetFiles')
+            ->with($this->equalTo($dir))
+            ->willReturn($files);
+
+        $this->assertSame(
+            $expectedFiles,
             $instance->listFiles('someDir')
         );
     }
