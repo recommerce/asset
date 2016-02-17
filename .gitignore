@@ -4,3 +4,4 @@ config/application.config.php
 build
 tests/assetClient.php
 index.php
+test.php

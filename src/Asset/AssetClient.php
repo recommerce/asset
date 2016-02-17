@@ -225,10 +225,18 @@ abstract class AssetClient implements AssetClientInterface
      *
      * @param string $dir
      * @param null $pattern
-     * @return array
+     * @return array File list (full named)
      */
     public function listFiles($dir, $pattern = null)
     {
+        if ($dir === '.') {
+            $dir = '';
+        }
+
+        if (substr($dir, -1) === '/') {
+            $dir = substr($dir, 0, -1);
+        }
+
         $matchingFiles = [];
         $files = $this->internalGetFiles($dir);
 
@@ -236,6 +244,12 @@ abstract class AssetClient implements AssetClientInterface
             if ($pattern && false === stripos($file, $pattern)) {
                 continue;
             }
+
+            // if relative path, add dir
+            if (0 !== strpos($file, $dir)) {
+                $file = $dir . '/' . $file;
+            }
+
             $matchingFiles[] = $file;
         }
         return $matchingFiles;
@@ -281,7 +295,7 @@ abstract class AssetClient implements AssetClientInterface
      */
     public function exists($assetFile)
     {
-        $files = $this->getFiles(dirname($assetFile));
+        $files = $this->listFiles(dirname($assetFile));
 
         foreach ($files as $file) {
             if ($file === $assetFile) {
@@ -294,15 +308,13 @@ abstract class AssetClient implements AssetClientInterface
     /**
      * Client specific operation to list asset directory's files
      *
+     * @deprecated Use listFiles
      * @param string $assetAssetDir
      * @return array $fileList
      */
     public function getFiles($assetAssetDir)
     {
-        if ($assetAssetDir === '.') {
-            $assetAssetDir = '';
-        }
-        return $this->internalGetFiles($assetAssetDir);
+        return $this->listFiles($assetAssetDir);
     }
 
 

@@ -216,8 +216,8 @@ class AssetClientTest extends \PHPUnit_Framework_TestCase
         $dir = 'someDir';
 
         $files = [
-            'anyFile1.txt',
-            'anyFile2.xml'
+            'someDir/anyFile1.txt',
+            'someDir/anyFile2.xml'
         ];
 
         $instance = $this->buildInstance(['internalGetFiles']);
@@ -228,6 +228,32 @@ class AssetClientTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame(
             $files,
+            $instance->listFiles('someDir')
+        );
+    }
+
+    public function testListFilesReturningRelativeFilename()
+    {
+        $dir = 'someDir';
+
+        $files = [
+            'anyFile1.txt',
+            'anyFile2.xml'
+        ];
+
+        $expectedFiles = [
+            'someDir/anyFile1.txt',
+            'someDir/anyFile2.xml'
+        ];
+
+        $instance = $this->buildInstance(['internalGetFiles']);
+        $instance
+            ->method('internalGetFiles')
+            ->with($this->equalTo($dir))
+            ->willReturn($files);
+
+        $this->assertSame(
+            $expectedFiles,
             $instance->listFiles('someDir')
         );
     }
@@ -316,10 +342,10 @@ class AssetClientTest extends \PHPUnit_Framework_TestCase
             'mydir/anyFile2.xml'
         ];
 
-        $instance = $this->buildInstance(['getFiles']);
+        $instance = $this->buildInstance(['listFiles']);
         $instance
             ->expects($this->once())
-            ->method('getFiles')
+            ->method('listFiles')
             ->with($this->equalTo('mydir'))
             ->willReturn($assetFiles);
 
@@ -335,41 +361,13 @@ class AssetClientTest extends \PHPUnit_Framework_TestCase
             'mydir/anyFile2.xml'
         ];
 
-        $instance = $this->buildInstance(['getFiles']);
+        $instance = $this->buildInstance(['listFiles']);
         $instance
             ->expects($this->once())
-            ->method('getFiles')
+            ->method('listFiles')
             ->with($this->equalTo('mydir'))
             ->willReturn($assetFiles);
 
         $this->assertFalse($instance->exists($assetFile));
-    }
-
-    /**
-     * @dataProvider getFilesAssetDirs
-     */
-    public function testGetFiles($assetDir, $expectedParameter)
-    {
-        $fileList = [
-            'anyFile1.txt',
-            'anyFile2.xml'
-        ];
-
-        $instance = $this->buildInstance(['internalGetFiles']);
-        $instance
-            ->expects($this->once())
-            ->method('internalGetFiles')
-            ->with($this->equalTo($expectedParameter))
-            ->willReturn($fileList);
-
-        $this->assertSame($fileList, $instance->getFiles($assetDir));
-    }
-
-    public function getFilesAssetDirs()
-    {
-        return [
-            ['.', ''],
-            ['someDir', 'someDir']
-        ];
     }
 }
