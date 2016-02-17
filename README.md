@@ -12,7 +12,7 @@ Current implementations are :
 ## Installation with composer
 
 ```sh
-composer require recommerce/asset:2.0.*
+composer require recommerce/asset:^3.0
 composer update
 ```
 
@@ -27,11 +27,10 @@ composer update
     $config = [
         'factory' => S3ClientFactory::class,
         'params' => [
-            AwsS3Client::factory([
-                'key'    => 'YOUR_S3_KEY',
-                'secret' => 'YOUR_S3_SECRET'
-            ]),
-            'YOUR_S3_BUCKET_NAME'
+            'key'    => 'YOUR_S3_KEY',
+            'secret' => 'YOUR_S3_SECRET',
+            'region' => 'YOUR_AWS_REGION',
+            'bucket' => 'YOUR_S3_BUCKET_NAME'
         ]
     ];
 
