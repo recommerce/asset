@@ -12,7 +12,7 @@ Current implementations are :
 ## Installation with composer
 
 ```sh
-composer require recommerce/asset:3.0.*
+composer require recommerce/asset:^3.0
 composer update
 ```
 
