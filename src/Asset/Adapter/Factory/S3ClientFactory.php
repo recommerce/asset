@@ -12,10 +12,15 @@ class S3ClientFactory implements AssetFactoryInterface
      */
     public function create(array $params)
     {
-        $s3client = \Aws\S3\S3Client::factory([
-            'key' => $params['key'],
-            'secret' => $params['secret']
+        $s3client = new \Aws\S3\S3Client([
+            'credentials' => [
+                'key'    => $params['key'],
+                'secret' => $params['secret'],
+            ],
+            'region'      => $params['region'],
+            'version'     => '2006-03-01',
         ]);
+
         $bucket = $params['bucket'];
 
         return new S3Client($s3client, $bucket);
