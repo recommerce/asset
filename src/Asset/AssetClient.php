@@ -246,7 +246,7 @@ abstract class AssetClient implements AssetClientInterface
             }
 
             // if relative path, add dir
-            if (0 !== strpos($file, $dir)) {
+            if ($dir && 0 !== strpos($file, $dir)) {
                 $file = $dir . '/' . $file;
             }
 
