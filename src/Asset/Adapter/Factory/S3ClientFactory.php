@@ -18,6 +18,6 @@ class S3ClientFactory implements AssetFactoryInterface
         ]);
         $bucket = $params['bucket'];
 
-        return new S3Client($s3client, $bucket);
+        return new S3Client($s3client, $bucket, $params);
     }
 }
