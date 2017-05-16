@@ -67,6 +67,31 @@ composer update
     $assetClient = $serviceManager->get('recommerce.asset.asset-client');
 ```
 
+#### Optionnal arguments
+```php
+    use Recommerce\Asset\Adapter\Factory\S3ClientFactory;
+    use Recommerce\Asset\AssetFactory;
+
+    $config = [
+        'factory' => S3ClientFactory::class,
+        'params' => [
+            'key'    => 'YOUR_S3_KEY',
+            'secret' => 'YOUR_S3_SECRET',
+            'region' => 'YOUR_AWS_REGION',
+            'bucket' => 'YOUR_S3_BUCKET_NAME',
+            'tmpDir' => 'YOUR_LOCAL_TMP_DIR',
+            'rootUrl' => 'BASE_URI_TO_S3_REPO'
+            'isPrivate' => true|false
+        ]
+    ];
+
+    $assetClient = (new AssetFactory())->createServiceFromConfig($config);
+```
+Optional arguments added below allow :
+- 'tmpDir' : (default to /tmp) Specify absolute path to local temporary directory
+- 'rootUrl' : Root URL to the S3 bucket, useful when generating full URL from a filename ``` $assetClient->getUrl('relative_path/to/file'); ```
+- 'isPrivate' : Whether files created throught this S3Client instance will have private or public read access
+
 ### Filesystem client creation
 #### Direct config
 ```php
