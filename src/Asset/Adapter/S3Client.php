@@ -30,6 +30,11 @@ class S3Client extends AssetClient implements AssetClientInterface
     protected $bucket;
 
     /**
+     * @var boolean
+     */
+    protected $isPrivate;
+
+    /**
      * @param AwsClientInterface $s3Client
      * @param string $bucket
      * @param array $options
@@ -38,6 +43,10 @@ class S3Client extends AssetClient implements AssetClientInterface
     {
         $this->s3Client = $s3Client;
         $this->bucket = $bucket;
+
+        $this->isPrivate = (isset($options['isPrivate']))
+            ? $options['isPrivate']
+            : false;
 
         parent::__construct($options);
     }
@@ -104,11 +113,11 @@ class S3Client extends AssetClient implements AssetClientInterface
      * @param boolean $aclPublic
      * @return boolean true
      */
-    protected function internalPut($localFile, $assetFile, $aclPublic = true)
+    protected function internalPut($localFile, $assetFile)
     {
-        $acl = ($aclPublic)
-            ? CannedAcl::PUBLIC_READ
-            : CannedAcl::PRIVATE_ACCESS;
+        $acl = ($this->isPrivate)
+            ? CannedAcl::PRIVATE_ACCESS
+            : CannedAcl::PUBLIC_READ;
 
         $this->s3Client->putObject(
             [
