@@ -2,26 +2,26 @@
 
 namespace Recommerce\Asset;
 
+use Interop\Container\ContainerInterface;
 use Recommerce\Asset\Exception\InvalidConfigurationException;
 use Zend\ServiceManager\Exception\ServiceNotFoundException;
-use Zend\ServiceManager\FactoryInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\ServiceManager\Factory\FactoryInterface;
 
 class AssetFactory implements FactoryInterface
 {
-
     /**
-     * @param ServiceLocatorInterface $serviceManager
-     * @return mixed
-     * @throws \Exception
+     * @param ContainerInterface $container
+     * @param string $requestedName
+     * @param array|null $options
+     * @return object
      */
-    public function createService(ServiceLocatorInterface $serviceManager)
+    public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
     {
-        if (!$serviceManager->has('Config')) {
+        if (!$container->has('Config')) {
             throw new ServiceNotFoundException("No Config service has been registered.");
         }
 
-        return $this->createServiceFromConfig($serviceManager->get('Config')['asset']);
+        return $this->createServiceFromConfig($container->get('Config')['asset']);
     }
 
     /**
