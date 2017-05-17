@@ -2,8 +2,7 @@
 
 namespace Recommerce\Asset\Adapter;
 
-use Aws\Common\Client\AwsClientInterface;
-use Aws\S3\Enum\CannedAcl;
+use Aws\AwsClientInterface;
 use Recommerce\Asset\AssetClient;
 use Recommerce\Asset\AssetClientInterface;
 use Recommerce\Asset\Exception\AssetPutException;
