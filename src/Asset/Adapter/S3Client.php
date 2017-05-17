@@ -116,8 +116,8 @@ class S3Client extends AssetClient implements AssetClientInterface
     protected function internalPut($localFile, $assetFile)
     {
         $acl = ($this->isPrivate)
-            ? CannedAcl::PUBLIC_READ
-            : CannedAcl::PRIVATE_ACCESS;
+            ? 'private'
+            : 'public-read';
 
         $this->s3Client->putObject(
             [
