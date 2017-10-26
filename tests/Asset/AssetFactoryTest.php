@@ -21,7 +21,7 @@ class AssetFactoryTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->instance = new AssetFactory();
-        $this->container = $this->getMock(ContainerInterface::class);
+        $this->container = $this->createMock(ContainerInterface::class);
     }
 
     public function testCreateInstance()
