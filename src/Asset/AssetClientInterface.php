@@ -2,7 +2,10 @@
 
 namespace Recommerce\Asset;
 
+use Recommerce\Asset\Exception\AssetGetException;
 use Recommerce\Asset\Exception\AssetMoveException;
+use Recommerce\Asset\Exception\AssetPutException;
+use Recommerce\Asset\Exception\AssetRemoveException;
 
 /**
  * AssetClient est une interface permettant le stockage de fichiers à des fins d'accès via
@@ -32,6 +35,7 @@ interface AssetClientInterface
      * @param string $assetFile
      * @param boolean $toDelete
      * @return boolean true
+     * @throws AssetPutException
      */
     public function put($localFile, $assetFile, $toDelete = false);
 
@@ -41,6 +45,7 @@ interface AssetClientInterface
      * @param string $assetFile
      * @param string $localFile
      * @return string Nom du nouveau fichier en local
+     * @throws AssetGetException
      */
     public function get($assetFile, $localFile);
 
@@ -56,12 +61,14 @@ interface AssetClientInterface
      *
      * @param string $assetFile
      * @return boolean
+     * @throws AssetRemoveException
      */
     public function remove($assetFile);
 
     /**
      * @param array $assetFiles
      * @return bool
+     * @throws AssetRemoveException
      */
     public function removeFiles(array $assetFiles);
 

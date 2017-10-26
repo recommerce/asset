@@ -2,10 +2,10 @@
     "name":"recommerce/asset",
     "require": {
         "aws/aws-sdk-php": "^3.0",
-        "zendframework/zend-servicemanager": "~2.5"
+        "zendframework/zend-servicemanager": "^3.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "4.7.*",
+        "phpunit/phpunit": "^5.7",
         "humbug/humbug": "~1.0@dev",
         "behat/behat": "2.5.*",
         "phing/phing": "^2.10",

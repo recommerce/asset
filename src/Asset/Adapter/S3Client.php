@@ -2,10 +2,10 @@
 
 namespace Recommerce\Asset\Adapter;
 
-use Aws\Common\Client\AwsClientInterface;
-use Aws\S3\Enum\CannedAcl;
+use Aws\AwsClientInterface;
 use Recommerce\Asset\AssetClient;
 use Recommerce\Asset\AssetClientInterface;
+use Recommerce\Asset\Exception\AssetGetException;
 use Recommerce\Asset\Exception\AssetPutException;
 use Recommerce\Asset\Exception\AssetRemoveException;
 
@@ -30,6 +30,11 @@ class S3Client extends AssetClient implements AssetClientInterface
     protected $bucket;
 
     /**
+     * @var boolean
+     */
+    protected $isPrivate;
+
+    /**
      * @param AwsClientInterface $s3Client
      * @param string $bucket
      * @param array $options
@@ -38,6 +43,10 @@ class S3Client extends AssetClient implements AssetClientInterface
     {
         $this->s3Client = $s3Client;
         $this->bucket = $bucket;
+
+        $this->isPrivate = (isset($options['isPrivate']))
+            ? $options['isPrivate']
+            : false;
 
         parent::__construct($options);
     }
@@ -89,7 +98,7 @@ class S3Client extends AssetClient implements AssetClientInterface
                 ]
             );
         } catch (\Exception $e) {
-            throw new AssetPutException("An error occurs", 0, $e);
+            throw new AssetGetException("An error occurs", 0, $e);
         }
 
         return $localFile;
@@ -104,20 +113,24 @@ class S3Client extends AssetClient implements AssetClientInterface
      * @param boolean $aclPublic
      * @return boolean true
      */
-    protected function internalPut($localFile, $assetFile, $aclPublic = true)
+    protected function internalPut($localFile, $assetFile)
     {
-        $acl = ($aclPublic)
-            ? CannedAcl::PUBLIC_READ
-            : CannedAcl::PRIVATE_ACCESS;
+        $acl = ($this->isPrivate)
+            ? 'private'
+            : 'public-read';
 
-        $this->s3Client->putObject(
-            [
-                'Bucket' => $this->bucket,
-                'Key' => $assetFile,
-                'SourceFile' => $localFile,
-                'ACL' => $acl
-            ]
-        );
+        try {
+            $this->s3Client->putObject(
+                [
+                    'Bucket' => $this->bucket,
+                    'Key' => $assetFile,
+                    'SourceFile' => $localFile,
+                    'ACL' => $acl
+                ]
+            );
+        } catch (\Exception $e) {
+            throw new AssetPutException("An error occurs", 0, $e);
+        }
 
         return true;
     }

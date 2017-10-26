@@ -2,9 +2,9 @@
 
 namespace Recommerce\Asset;
 
+use Interop\Container\ContainerInterface;
 use Recommerce\Asset\Adapter\Factory\FilesystemClientFactory;
 use Recommerce\Asset\Adapter\FilesystemClient;
-use Zend\ServiceManager\ServiceLocatorInterface;
 
 class AssetFactoryTest extends \PHPUnit_Framework_TestCase
 {
@@ -16,25 +16,25 @@ class AssetFactoryTest extends \PHPUnit_Framework_TestCase
     /**
      * @var \PHPUnit_Framework_MockObject_MockObject
      */
-    private $serviceManager;
+    private $container;
 
     public function setUp()
     {
         $this->instance = new AssetFactory();
-        $this->serviceManager = $this->getMock(ServiceLocatorInterface::class);
+        $this->container = $this->createMock(ContainerInterface::class);
     }
 
     public function testCreateInstance()
     {
         $this
-            ->serviceManager
+            ->container
             ->method('has')
             ->will($this->returnValueMap([
                 ['Config', true]
             ]));
 
         $this
-            ->serviceManager
+            ->container
             ->method('get')
             ->will($this->returnValueMap([
                 [
@@ -53,7 +53,7 @@ class AssetFactoryTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf(
             FilesystemClient::class,
-            $this->instance->createService($this->serviceManager)
+            $this->instance->__invoke($this->container, 'name')
         );
     }
 }
