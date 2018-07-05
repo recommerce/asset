@@ -20,7 +20,7 @@ class FtpClient extends AssetClient implements AssetClientInterface
      * @param array $options
      * @throws ConnectionException
      */
-    public function __construct($host, $login, $password, $port = 21, array $options = [])
+    public function __construct($host, $login, $password, $port = 21, $useFtps = false, array $options = [])
     {
         parent::__construct($options);
 
@@ -28,6 +28,7 @@ class FtpClient extends AssetClient implements AssetClientInterface
         $this->login = $login;
         $this->password = $password;
         $this->port = $port;
+        $this->useFtps = $useFtps;
 
         $this->maxTry = (isset($options['maxTry']) && $options['maxTry'] > 0)
             ? $options['maxTry']
@@ -44,11 +45,14 @@ class FtpClient extends AssetClient implements AssetClientInterface
      * Connect to ftp server
      *
      * @return resource
-     * @throws ConnectionException
      */
     protected function internalConnect()
     {
-        $connection = ftp_connect($this->host, $this->port);
+        if ($this->useFtps) {
+            $connection = ftp_ssl_connect($this->host, $this->port);
+        } else {
+            $connection = ftp_connect($this->host, $this->port);
+        }
 
         if (!$connection || !ftp_login($connection, $this->login, $this->password)) {
             return null;
