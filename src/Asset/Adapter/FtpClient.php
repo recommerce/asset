@@ -17,6 +17,7 @@ class FtpClient extends AssetClient implements AssetClientInterface
      * @param string $login
      * @param string $password
      * @param int $port
+     * @param boolean $useFtps
      * @param array $options
      * @throws ConnectionException
      */
