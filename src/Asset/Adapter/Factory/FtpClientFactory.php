@@ -9,7 +9,8 @@ class FtpClientFactory implements AssetFactoryInterface
 {
     /**
      * @param array $params
-     * @return S3Client
+     * @return mixed|FtpClient
+     * @throws \Recommerce\Asset\Exception\ConnectionException
      */
     public function create(array $params)
     {
@@ -17,7 +18,8 @@ class FtpClientFactory implements AssetFactoryInterface
         $login = $params['username'];
         $password = $params['password'];
         $port = $params['port'];
+        $useFtps = $params['useFtps'];
 
-        return new FtpClient($host, $login, $password, $port);
+        return new FtpClient($host, $login, $password, $port, $useFtps);
     }
 }
