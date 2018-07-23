@@ -46,6 +46,11 @@ trait ConnectedClientTrait
     private $port;
 
     /**
+     * @var boolean
+     */
+    private $useFtps;
+
+    /**
      * Connect to ftp server with several try
      *
      * @throws ConnectionException
