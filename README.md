@@ -141,3 +141,4 @@ $assetClient->exists('path/to/remote_file.png');
 // Remove asset file
 $assetClient->remove('path/to/remote_file.png');
 ```
+
