@@ -47,10 +47,6 @@ abstract class AssetClient implements AssetClientInterface
      */
     public function __construct(array $options = [])
     {
-        $this->tmpDir = (isset($options['tmpDir']))
-            ? $options['tmpDir']
-            : '/tmp';
-
         $this->rootUrl = (isset($options['rootUrl']))
             ? $options['rootUrl']
             : '';
@@ -168,7 +164,7 @@ abstract class AssetClient implements AssetClientInterface
     protected function uploadRemoteFile($localfile, $assetFile)
     {
         $tmpName = str_replace(['/', '\\'], '', $assetFile);
-        $tmpFile = $this->tmpDir . DS . $tmpName;
+        $tmpFile = TMP . $tmpName;
 
         if (!copy($localfile, $tmpFile)) {
             throw new AssetPutException(
@@ -193,7 +189,7 @@ abstract class AssetClient implements AssetClientInterface
     public function get($assetFile, $localFile = null)
     {
         if (null === $localFile) {
-            $localFile = $this->tmpDir . DS . $assetFile;
+            $localFile = TMP . $assetFile;
         }
 
         $destinationDir = dirname($localFile);

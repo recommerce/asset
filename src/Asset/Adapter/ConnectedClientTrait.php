@@ -48,6 +48,21 @@ trait ConnectedClientTrait
     /**
      * @var int
      */
+    private $fingerprint;
+
+    /**
+     * @var array
+     */
+    private $params;
+
+    /**
+     * @var int
+     */
+    private $method;
+
+    /**
+     * @var int
+     */
     private $useFtps;
 
     /**
@@ -106,11 +121,12 @@ trait ConnectedClientTrait
     }
 
     /**
+     * @param string $dir
      * @throws ConnectionException
      */
-    private function reconnectIfNeeded()
+    private function reconnectIfNeeded($dir = '.')
     {
-        $this->connection = (!$this->connection || !$this->isConnected())
+        $this->connection = (!$this->connection || !$this->isConnected($dir))
             ? $this->connect()
             : $this->connection;
     }
@@ -118,8 +134,5 @@ trait ConnectedClientTrait
     /**
      * @return bool
      */
-    private function isConnected()
-    {
-        return is_array(ftp_nlist($this->connection, "."));
-    }
+    abstract public function isConnected($dir);
 }
