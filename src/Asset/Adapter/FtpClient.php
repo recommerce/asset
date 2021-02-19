@@ -149,4 +149,12 @@ class FtpClient extends AssetClient implements AssetClientInterface
 
         return ftp_delete($this->connection, $assetFile);
     }
+
+    /**
+     * @return bool
+     */
+    protected function isConnected()
+    {
+        return is_array(ftp_nlist($this->connection, "."));
+    }
 }

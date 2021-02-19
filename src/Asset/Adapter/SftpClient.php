@@ -275,7 +275,7 @@ class SftpClient extends AssetClient implements AssetClientInterface
     /**
      * @return bool
      */
-    private function isConnected($dir)
+    protected function isConnected($dir)
     {
         return is_array($this->scanDir($dir));
     }
