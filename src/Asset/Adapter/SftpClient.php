@@ -76,8 +76,9 @@ class SftpClient extends AssetClient implements AssetClientInterface
      *
      * @param string $oldAssetFile
      * @param string $newAssetFile
-     * @return bool
+     * @return string
      * @throws AssetMoveException
+     * @throws ConnectionException
      */
     protected function internalMove($oldAssetFile, $newAssetFile)
     {
@@ -99,7 +100,9 @@ class SftpClient extends AssetClient implements AssetClientInterface
      *
      * @param string $localFile
      * @param string $assetFile
-     * @return boolean true
+     * @return bool
+     * @throws AssetMoveException
+     * @throws ConnectionException
      */
     protected function internalPut($localFile, $assetFile)
     {
@@ -112,8 +115,9 @@ class SftpClient extends AssetClient implements AssetClientInterface
      *
      * @param string $assetFile
      * @param string $localFile
-     * @return string Nom du nouveau fichier en local
-     * @throws AssetPutException
+     * @return bool
+     * @throws AssetMoveException
+     * @throws ConnectionException
      */
     protected function internalGet($assetFile, $localFile)
     {
@@ -124,8 +128,9 @@ class SftpClient extends AssetClient implements AssetClientInterface
     /**
      * {@inheritdoc}
      *
-     * @param string $assetAssetDir
-     * @return mixed False si le répertoire n'existe pas, une liste sinon
+     * @param string $dir
+     * @return array
+     * @throws ConnectionException
      */
     protected function internalGetFiles($dir)
     {
@@ -152,9 +157,9 @@ class SftpClient extends AssetClient implements AssetClientInterface
 
     /**
      * {@inheritdoc}
-     *
      * @param string $assetFile
-     * @return boolean
+     * @return bool
+     * @throws ConnectionException
      */
     protected function internalRemove($assetFile)
     {
@@ -167,7 +172,7 @@ class SftpClient extends AssetClient implements AssetClientInterface
      *
      * This function is used to connect an SSH server and open a SFTP subsystem on this server
      *
-     * @throws Exception
+     * @throws ConnectionException
      *   -> Cannot connect to server
      *   -> No fingerprint defined !
      *   -> No username defined !
@@ -288,7 +293,7 @@ class SftpClient extends AssetClient implements AssetClientInterface
      * @param string $localFile , relative path of the local file
      * @param string $replaceFileIfAlreadyExist , replace the current file if it's already exist ?
      * @return boolean true if file is successfully downloaded, false otherwise
-     * @throws Exception
+     * @throws AssetMoveException
      *   -> Could not open remote file: $remoteFile
      *   -> Could not create local file: $localFile
      *   -> Could not save data from file: $remoteFile
@@ -299,23 +304,23 @@ class SftpClient extends AssetClient implements AssetClientInterface
         $dataToSave = $this->getFile($remoteFile);
 
         if ($dataToSave === false) {
-            throw new Exception("Could not open remote file: $remoteFile");
+            throw new AssetMoveException("Could not open remote file: $remoteFile");
         }
 
         if ($replaceFileIfAlreadyExist || !file_exists($localFile)) {
             $stream = @fopen($localFile, 'wb');
             if (!$stream) {
-                throw new Exception("Could not create local file: $localFile");
+                throw new AssetMoveException("Could not create local file: $localFile");
             }
             if (@fwrite($stream, $dataToSave) === false) {
-                throw new Exception(
+                throw new AssetMoveException(
                     "Could not save data from file: $remoteFile"
                 );
             }
             @fclose($stream);
             return true;
         } else {
-            throw new Exception("File already exists: $localFile");
+            throw new AssetMoveException("File already exists: $localFile");
         }
         return false;
     }
@@ -327,7 +332,7 @@ class SftpClient extends AssetClient implements AssetClientInterface
      * @param string $localFile , relative path of the local file
      * @param string $remoteFile , relative path of the remote file
      * @return boolean true if file is successfully uploaded, false otherwise
-     * @throws Exception
+     * @throws AssetMoveException
      *   -> Could not open local file: $localFile
      */
     public function uploadFile($localFile, $remoteFile)
@@ -335,10 +340,52 @@ class SftpClient extends AssetClient implements AssetClientInterface
         $dataToSend = @file_get_contents($localFile);
 
         if ($dataToSend === false) {
-            throw new Exception("Could not open local file: $localFile");
+            throw new AssetMoveException("Could not open local file: $localFile");
         }
 
         return $this->setFile($remoteFile, $dataToSend);
+    }
+
+    /**
+     * This function is used to set content on a remote file
+     *
+     * @param string $remoteFile , relative path of the remote file
+     * @param string $content , content to put in the remote file
+     * @return boolean true if content has been set on the remote file, false otherwise
+     * @throws AssetMoveException
+     *   -> No SFTP connexion !
+     *   -> Could not open file: $remoteFile
+     *   -> Could not send data from file: $localFile
+     *   -> File already exists: $remoteFile
+     */
+    public function setFile($remoteFile, $content)
+    {
+        $sftp = intval($this->sftp) . $this->remoteWorkingDirectory;
+
+        if (!$sftp) {
+            throw new AssetMoveException("No SFTP connexion !");
+        }
+
+        $remoteFullFilename = "ssh2.sftp://" . $sftp . $remoteFile;
+
+        if (!file_exists($remoteFullFilename)) {
+            $stream = @fopen($remoteFullFilename, 'wb');
+
+            if (!$stream) {
+                throw new AssetMoveException("Could not open file: $remoteFullFilename");
+            }
+
+            if (@fwrite($stream, $content) === false) {
+                throw new AssetMoveException(
+                    "Could not write on file: $remoteFullFilename"
+                );
+            }
+            @fclose($stream);
+            return true;
+        } else {
+            throw new AssetMoveException("File already exists: $remoteFullFilename");
+        }
+        return false;
     }
 
     /**
@@ -346,7 +393,7 @@ class SftpClient extends AssetClient implements AssetClientInterface
      *
      * @param string $remoteFile , relative path of the remote file
      * @return string Content of the remote file, or false otherwise !
-     * @throws Exception
+     * @throws AssetMoveException
      *   -> No SFTP connexion !
      *   -> Could not open file: $remoteFile
      *   -> File "$remoteFile" doesn't exists !
@@ -355,12 +402,12 @@ class SftpClient extends AssetClient implements AssetClientInterface
     {
         $sftp = intval($this->sftp) . $this->remoteWorkingDirectory;
         if (!$sftp) {
-            throw new Exception("No SFTP connexion !");
+            throw new AssetMoveException("No SFTP connexion !");
         }
         if (file_exists("ssh2.sftp://" . $sftp . $remoteFile)) {
             $stream = @fopen("ssh2.sftp://" . $sftp . $remoteFile, 'r');
             if (!$stream) {
-                throw new Exception("Could not open file: $remoteFile");
+                throw new AssetMoveException("Could not open file: $remoteFile");
             }
             $out = '';
             // Read the file by packet of 8192 bytes
@@ -374,7 +421,7 @@ class SftpClient extends AssetClient implements AssetClientInterface
             return $out;
         } else {
             // File doesn't exists
-            throw new Exception('File "' . $remoteFile . '" doesn\'t exists !');
+            throw new AssetMoveException('File "' . $remoteFile . '" doesn\'t exists !');
         }
         return false;
     }
